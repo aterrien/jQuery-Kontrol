@@ -1,7 +1,7 @@
 jQuery Kontrol
 =============
 
-Small extensible jQuery library of new UI controls ; dial (was 'knob'), XY pad, bars control ...
+Small jQuery library of new UI controls ; dial (was 'knob'), XY pad, bars control ...
 
 - canvas based ; no png or jpg sprites.
 - touch, mousewheel, keyboard events implemented.
