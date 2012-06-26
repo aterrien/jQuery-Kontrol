@@ -142,9 +142,9 @@ $(function () {
                         }
                 );
 
-            /*this.target
+            this.target
                 .parent()
-                .bind("configure", cf);*/
+                .bind("configure", cf);
 
             this._listen()
                 ._configure()
