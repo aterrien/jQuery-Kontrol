@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>jQuery Knob demo</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
+        <script src="js/jquery.kontrol.js"></script>
+        <script>
+            $(function() {
+                var $all = $(".dial, .bars, .pad")
+                    , $body = $("body");
+
+                $(".bars").bars({
+                                    fgColor:"#222222"
+                                    , bgColor:"#EEEEEE"
+                                });
+                            
+                var $pad = $(".pad")
+                            .xy({
+                                    displayPrevious:false
+                                    , min : 0
+                                    , max : 255
+                                    , fgColor:"#222222"
+                                    , bgColor:"#EEEEEE"
+                                    })
+                            .css({'border':'5px solid #DDD'});
+
+                $(".dial")
+                            .dial({
+                                    min:-100
+                                    , max:100
+                                    , fgColor:"#222222"
+                                    , bgColor:"#EEEEEE"
+                                })
+                            .css({display:'inline',padding:'0px 10px'});
+
+                var skins = {
+                    skin0 : {
+                        kontrol : {
+                            fgColor:"#87CEEB"
+                            , bgColor:"#EEEEEE"
+                        }
+                        , rack : {
+                            "background-color":"#FFFFFF"
+                            , "color":"#87CEEB"
+                        }
+                    }
+                    , skin1 : {
+                        kontrol : {
+                            fgColor:"#222222"
+                            , bgColor:"#EEEEEE"
+                        }
+                        , rack : {
+                            "background-color":"#FFFFFF"
+                            , "color":"#222222"
+                        }
+                    }
+                    , skin2 : {
+                        kontrol : {
+                            fgColor:"#FFFFFF"
+                            , bgColor:"#444444"
+                        }
+                        , rack : {
+                            "background-color":"#222222"
+                            , "color":"#FFFFFF"
+                        }
+                    }
+                    , skin3 : {
+                        kontrol : {
+                            fgColor:"#00FF00"
+                            , bgColor:"#DDDDDD"
+                        }
+                        , rack : {
+                            "background-color":"#FFFFFF"
+                            , "color":"#00FF00"
+                        }
+                    }
+                    , skin4 : {
+                        kontrol : {
+                            fgColor:"#FF0000"
+                            , bgColor:"#DDDDDD"
+                        }
+                        , rack : {
+                            "background-color":"#EEEEEE"
+                            , "color":"#FF0000"
+                        }
+                    }
+                };
+
+                var changeSkin = function(skin) {
+                    $body.css(skin.rack);
+                    $all.trigger(
+                            "configure"
+                            , skin.kontrol
+                            );
+                }
+                
+                $('#skin').bind(
+                    'change'
+                    , function(e) {
+                        changeSkin(skins[$(this).find('option:selected').val()]);
+                    }
+                );
+
+                $('#displayPrevious').bind(
+                    'change'
+                    , function(e) {
+                        $all.trigger("configure", {displayPrevious:parseInt($(this).find('option:selected').val())});
+                    }
+                );
+
+                $('#cursor').bind(
+                    'change'
+                    , function(e) {
+                        $all.trigger("configure", {cursor:parseInt($(this).find('option:selected').val())});
+                    }
+                );
+                
+                $(".height").bind(
+                    'click'
+                    , function(e) {
+                        $all.trigger("configure", {height:100});
+                    }
+                );
+            });
+        </script>
+        <style>
+            .rack{font:bold 14px monospace;}
+            ul{padding:0px;margin:0px;list-style-type: none;font:10px Arial}
+            .opt{
+                background:#FFF;
+                -webkit-box-shadow: inset 0 4px 4px -2px #888, inset 0 -4px 4px -2px #888;
+                -moz-box-shadow: inset 0 4px 4px -2px #888, inset 0 -4px 4px -2px #888;
+                box-shadow: inset 0 4px 4px -2px #888, inset 0 -4px 4px -2px #888;
+                color:#AAA; font:10px Arial;
+            }
+            .opt div{
+                padding:0px 10px;
+            }
+            select {
+               width: 100px;
+               padding: 5px;font-size: 16px;
+               border: 1px solid #ccc;height: 34px;
+            }
+        </style>
+    </head>
+    <body style="padding:0px;margin:0px;color:#222222">
+        <div style="background-color:#222222;border-bottom:1px solid #AAA;width:100%;font:50px Arial;letter-spacing:-3px;">
+            <div style="padding:20px;width:600px;color:#FFF">
+                jQuery <strong>Kontrol</strong>
+                <a href="http://flattr.com/thing/674900/jQuery-Knob" target="_blank">
+                    <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" />
+                </a>
+            </div>
+        </div>
+        <div class="opt" style="height:50px;padding:10px">
+            <div style="float:left">colors<br>
+                <select id="skin">
+                    <option value="skin0">default</option>
+                    <option value="skin1" selected>black</option>
+                    <option value="skin2">white</option>
+                    <option value="skin3">green</option>
+                    <option value="skin4">red</option>
+                </select>
+            </div>
+            <div style="float:left">cursor<br>
+                <select id="cursor">
+                    <option value=0>no</option>
+                    <option value=10>10</option>
+                    <option value=40>40</option>
+                    <option value=80>80</option>
+                </select>
+            </div>
+            <div style="float:left">displayPrevious<br>
+                <select id="displayPrevious">
+                    <option value=0>false</option>
+                    <option value=1>true</option>
+                </select>
+            </div>
+        </div>
+        <div class="rack">
+            <div style="margin:20px;">
+                <div style="float:left;width:420px;">
+                    <div style="float:left;width:400px;height:200px;padding:10px">
+                        <div style="float:left;width:216px;">
+                            <div>Dial</div>
+                            <input class="dial" data-width="180" value="0">
+                        </div>
+                        <div style="float:left;width:184px;">
+                            <div>XY</div>
+                            <input class="pad" data-width="180" data-height="180" value='{"x": 50, "y": 67}'>
+                        </div>
+                    </div>
+                    <div style="float:left;width:400px;margin-top:4px;height:240px;padding:10px 10px 10px 10px">
+                        <div style="margin-bottom:10px">Bars</div>
+                        <input class="bars" data-width="400" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23}'>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="border: 0 none; position: absolute; right: 0; top: 0;"><a href="https://github.com/aterrien" target="_blank"><img src="../i/github-ribbon.png" style="border: 0 none;"></a></div>
+        <script type="text/javascript">
+            var _gaq = _gaq || [];
+            _gaq.push(['_setAccount', 'UA-3008949-6']);
+            _gaq.push(['_trackPageview']);
+        </script>
+        <script type="text/javascript">
+            (function() {
+                    var ga = document.createElement('script');
+                    ga.type = 'text/javascript';
+                    ga.async = true;
+                    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+            })();
+        </script>
+    </body>
+</html>
