@@ -1,7 +1,7 @@
 /**
  * jQuery Kontrol
  *
- * Small extensible jQuery library of new UI controls ;
+ * Small jQuery library of new UI controls ;
  * dial (was jQuery Knob), XY pad, bars.
  *
  * Version: 0.3.0 (26/06/2012)
