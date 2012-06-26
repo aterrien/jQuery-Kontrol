@@ -134,10 +134,7 @@ $(function () {
 });
 
 
-Supported browser
+Supported browsers
 -------
 
-Chrome
-Safari
-Firefox
-IE 9.0
+Chrome / Safari / Firefox / IE 9.0
