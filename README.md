@@ -7,7 +7,7 @@ Small extensible jQuery library of new UI controls ; dial (was 'knob'), XY pad, 
 - touch, mousewheel, keyboard events implemented.
 - downward compatible ; overloads inputs.
 
-http://anthonyterrien.com/kontrol/
+Demo : http://anthonyterrien.com/kontrol/
 
 Controls
 -------
@@ -62,19 +62,26 @@ Hooks
 -------
 
     <script>
-    $(".dial").dial({
-                        'release' : function(v) { /* ... */ }
+    $(".dial").knob({
+                        'release' : function (v) { /*make something*/ }
                     });
     </script>
 
-
-* 'change' : executed on change
-
-* 'cancel' : executed on cancel ([esc])
-
 * 'release' : executed on release
 
-* 'draw' : when draw the canvas
+    Parameters :
+    + value : int, current value
+
+* 'change' : executed at each change of the value
+
+    Parameters :
+    + value : int, current value
+
+* 'draw' : when drawing the canvas
+
+* 'cancel' : on [esc] keydown
+
+The scope (this) of each hook function is an instance of Kontrol component.
 
 
 Example
