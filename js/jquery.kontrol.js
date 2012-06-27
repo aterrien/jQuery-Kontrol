@@ -1,8 +1,8 @@
 /**
  * jQuery Kontrol
  *
- * Small jQuery library of new UI controls ;
- * dial (was jQuery Knob), XY pad, bars.
+ * Small extensible jQuery library of new UI controls ;
+ * Dial (was jQuery Knob), XY pad, Bars.
  *
  * Version: 0.3.0 (26/06/2012)
  * Requires: jQuery v1.7+
@@ -387,15 +387,23 @@ $(function () {
                 this.fgColor = this.options.fgColor;
             }
 
+            var s = Math.max(
+                            String(Math.abs(this.options.max)).length
+                            , String(Math.abs(this.options.min)).length
+                            , 2
+                            ) + 2;
+
             this.options.displayInput
                 && this.target.css({
                         'width' : (this.options.width / 2 + 4) + 'px'
+                        ,'height' : this.options.width / 3
                         ,'position' : 'absolute'
-                        ,'margin-top' : (this.options.width * 5 / 14) + 'px'
+                        ,'vertical-align' : 'middle'
+                        ,'margin-top' : this.options.width / 3 + 'px'
                         ,'margin-left' : '-' + (this.options.width * 3 / 4 + 2) + 'px'
                         ,'border' : 'none'
                         ,'background' : 'none'
-                        ,'font' : 'bold ' + (this.options.width / 4) + 'px Arial'
+                        ,'font' : 'bold ' + this.options.width / s + 'px Arial'
                         ,'text-align' : 'center'
                         ,'color' : this.options.fgColor
                         ,'padding' : '0px'
@@ -468,10 +476,14 @@ $(function () {
 
         this.val = function (v) {
             if (null != v) {
-                this.options.stopper
-                    && (this.newValue = Math.max(Math.min(v, this.options.max), this.options.min))
-                    || (this.newValue = v);
-                
+                if (this.options.stopper) {
+                    this.newValue = Math.max(
+                                        Math.min(v, this.options.max)
+                                        , this.options.min
+                                    );
+                } else {
+                    this.newValue = v;
+                }
                 this.value = this.newValue;
                 this.target.val(this.value);
                 this._draw();
