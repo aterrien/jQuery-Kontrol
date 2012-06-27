@@ -469,9 +469,7 @@ $(function () {
 
         this.val = function (v) {
             if (null != v) {
-                this.options.stopper
-                    && (this.newValue = Math.max(Math.min(v, this.options.max), this.options.min))
-                    || (this.newValue = v);
+				this.newValue = this.options.stopper ? Math.max(Math.min(v, this.options.max), this.options.min) : v;
                 
                 this.value = this.newValue;
                 this.target.val(this.value);
