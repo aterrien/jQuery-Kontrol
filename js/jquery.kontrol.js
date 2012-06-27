@@ -461,7 +461,8 @@ $(function () {
             this.options = $.extend(
                 {
                     'bgColor' : this.target.data('bgcolor') || '#EEEEEE',
-                    'angleOffset': this.target.data('angleoffset') || 0
+                    'angleOffset': this.target.data('angleoffset') || 0,
+                    'angleArc': this.target.data('anglearc') || 360
                 }, this.options
             );
         };
@@ -522,6 +523,10 @@ $(function () {
             // deg to rad
             && (this.options.angleOffset = isNaN(this.options.angleOffset) ? 0 : this.options.angleOffset * Math.PI / 180);
 
+            this.options.angleArc
+            // deg to rad
+            && (this.options.angleArc = isNaN(this.options.angleArc) ? this.PI2 : this.options.angleArc * Math.PI / 180);
+
             this.startAngle = 1.5 * Math.PI + this.options.angleOffset;
         };
 
@@ -531,7 +536,7 @@ $(function () {
         };
 
         this._angle = function (v) {
-            return (v - this.options.min) * this.PI2 / (this.options.max - this.options.min);
+            return (v - this.options.min) * this.options.angleArc / (this.options.max - this.options.min);
         };
 
         this.draw = function () {
