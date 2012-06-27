@@ -328,7 +328,7 @@ $(function () {
                                     var v = parseInt(self.target.val()) + kv[kc] * m;
                                     
                                     self.options.stopper
-                                    && (v = Math.max(Math.min(v, self.options.max), self.options.min))
+                                    && (v = Math.max(Math.min(v, self.options.max), self.options.min));
 
                                     self._frame(e);
                                     self.change(v);
@@ -461,17 +461,17 @@ $(function () {
             this.options = $.extend(
                 {
                     'bgColor' : this.target.data('bgcolor') || '#EEEEEE',
-                    'angleOffset': this.target.data('angleoffset') || 0
+                    'angleOffset': this.target.data('angleoffset') || 0,
+                    'angleArc': this.target.data('anglearc') || 360,
+                    'angleBgCircle': this.target.data('anglebgcircle') || false
                 }, this.options
             );
         };
 
         this.val = function (v) {
             if (null != v) {
-                this.options.stopper
-                    && (this.newValue = Math.max(Math.min(v, this.options.max), this.options.min))
-                    || (this.newValue = v);
-                
+                this.newValue = this.options.stopper ? Math.max(Math.min(v, this.options.max), this.options.min) : v;
+
                 this.value = this.newValue;
                 this.target.val(this.value);
                 this._draw();
@@ -481,13 +481,15 @@ $(function () {
         };
         
         this.xy2val = function (x, y) {
-            var b, a;
+            var b, a, ret;
             b = a = Math.atan2(
                         x - (this.x + this.w2)
                         , - (y - this.y - this.w2)
-                    ) - this.options.angleOffset;
-            (a < 0) && (b = a + this.PI2);
-            return Math.round(b * (this.options.max - this.options.min) / this.PI2) + this.options.min;
+                    ) - this.offsetAngle;
+            (a < 0) && (b = a + this.arcAngle);
+            ret = Math.round(b * (this.options.max - this.options.min) / this.arcAngle) + this.options.min;
+            this.options.stopper && (ret = Math.max(Math.min(ret, this.options.max), this.options.min));
+            return ret;
         };
 
         this.listen = function () {
@@ -518,11 +520,21 @@ $(function () {
             this.lineWidth = this.xy * this.options.thickness;
             this.radius = this.xy - this.lineWidth / 2;
 
-            this.options.angleOffset
-            // deg to rad
-            && (this.options.angleOffset = isNaN(this.options.angleOffset) ? 0 : this.options.angleOffset * Math.PI / 180);
+//console.log(this.options.angleOffset);
+//console.log(this.options.angleArc);
 
-            this.startAngle = 1.5 * Math.PI + this.options.angleOffset;
+            this.options.angleOffset
+            && (this.options.angleOffset = isNaN(this.options.angleOffset) ? 0 : this.options.angleOffset);
+
+            this.options.angleArc
+            && (this.options.angleArc = isNaN(this.options.angleArc) ? this.PI2 : this.options.angleArc);
+
+            // deg to rad
+            this.offsetAngle = this.options.angleOffset * Math.PI / 180;
+            this.arcAngle = this.options.angleArc * Math.PI / 180;
+            
+            this.startAngle = 1.5 * Math.PI + this.offsetAngle;
+            this.endAngle = 1.5 * Math.PI + this.offsetAngle + (this.options.angleBgCircle ? this.PI2 : this.arcAngle);
         };
 
         this.change = function (v) {
@@ -531,7 +543,7 @@ $(function () {
         };
 
         this._angle = function (v) {
-            return (v - this.options.min) * this.PI2 / (this.options.max - this.options.min);
+            return (v - this.options.min) * this.arcAngle / (this.options.max - this.options.min);
         };
 
         this.draw = function () {
@@ -553,7 +565,7 @@ $(function () {
 
             this.context.beginPath();
             this.context.strokeStyle = this.options.bgColor;
-            this.context.arc(this.xy, this.xy, this.radius, 0, this.PI2, true);
+            this.context.arc(this.xy, this.xy, this.radius, this.endAngle, this.startAngle, true);
             this.context.stroke();
 
             if (this.options.displayPrevious) {
