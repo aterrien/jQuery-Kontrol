@@ -170,7 +170,7 @@ $(function () {
         };
 
         this._draw = function (e) {
-            
+
             if (
                 this.drawHook
                 && (this.drawHook() === false)
@@ -221,7 +221,7 @@ $(function () {
         };
 
         this._mouseDown = function (e) {
-            
+
             var mouseMove = function (e) {
                                 var v = self.xy2val(e.pageX, e.pageY);
                                 if (v == self.newValue) return;
@@ -233,11 +233,11 @@ $(function () {
 
                                 self.change(v);
                             };
-                                
+
             this.change(this.xy2val(e.pageX, e.pageY));
             this._frame(e);
 
-            
+
             // Mouse events listeners
             kontrol.Core.document
                 .bind("mousemove.k", mouseMove)
@@ -287,9 +287,9 @@ $(function () {
         };
 
         this._listen = function () {
-            
+
             var kval, to, m = 1, kv = {37:-1, 38:1, 39:1, 40:-1};
-            
+
             if (!this.options.readOnly) {
 
                 this.canvas
@@ -326,9 +326,9 @@ $(function () {
                                 // arrows
                                 if ($.inArray(kc,[37,38,39,40]) > -1) {
                                     var v = parseInt(self.target.val()) + kv[kc] * m;
-                                    
+
                                     self.options.stopper
-                                    && (v = Math.max(Math.min(v, self.options.max), self.options.min))
+                                    && (v = Math.max(Math.min(v, self.options.max), self.options.min));
 
                                     self._frame(e);
                                     self.change(v);
@@ -368,7 +368,7 @@ $(function () {
             } else {
                 this.target.attr('readonly', 'readonly');
             }
-            
+
             return this;
         };
 
@@ -469,21 +469,16 @@ $(function () {
             this.options = $.extend(
                 {
                     'bgColor' : this.target.data('bgcolor') || '#EEEEEE',
-                    'angleOffset': this.target.data('angleoffset') || 0
+                    'angleOffset': this.target.data('angleoffset') || 0,
+                    'angleArc': this.target.data('anglearc') || 360,
+                    'angleBgCircle': this.target.data('anglebgcircle') || false
                 }, this.options
             );
         };
 
         this.val = function (v) {
             if (null != v) {
-                if (this.options.stopper) {
-                    this.newValue = Math.max(
-                                        Math.min(v, this.options.max)
-                                        , this.options.min
-                                    );
-                } else {
-                    this.newValue = v;
-                }
+                this.newValue = this.options.stopper ? Math.max(Math.min(v, this.options.max), this.options.min) : v;
                 this.value = this.newValue;
                 this.target.val(this.value);
                 this._draw();
@@ -491,15 +486,17 @@ $(function () {
                 return this.value;
             }
         };
-        
+
         this.xy2val = function (x, y) {
-            var b, a;
+            var b, a, ret;
             b = a = Math.atan2(
                         x - (this.x + this.w2)
                         , - (y - this.y - this.w2)
-                    ) - this.options.angleOffset;
-            (a < 0) && (b = a + this.PI2);
-            return Math.round(b * (this.options.max - this.options.min) / this.PI2) + this.options.min;
+                    ) - this.offsetAngle;
+            (a < 0) && (b = a + this.arcAngle);
+            ret = Math.round(b * (this.options.max - this.options.min) / this.arcAngle) + this.options.min;
+            this.options.stopper && (ret = Math.max(Math.min(ret, this.options.max), this.options.min));
+            return ret;
         };
 
         this.listen = function () {
@@ -531,10 +528,17 @@ $(function () {
             this.radius = this.xy - this.lineWidth / 2;
 
             this.options.angleOffset
-            // deg to rad
-            && (this.options.angleOffset = isNaN(this.options.angleOffset) ? 0 : this.options.angleOffset * Math.PI / 180);
+            && (this.options.angleOffset = isNaN(this.options.angleOffset) ? 0 : this.options.angleOffset);
 
-            this.startAngle = 1.5 * Math.PI + this.options.angleOffset;
+            this.options.angleArc
+            && (this.options.angleArc = isNaN(this.options.angleArc) ? this.PI2 : this.options.angleArc);
+
+            // deg to rad
+            this.offsetAngle = this.options.angleOffset * Math.PI / 180;
+            this.arcAngle = this.options.angleArc * Math.PI / 180;
+
+            this.startAngle = 1.5 * Math.PI + this.offsetAngle;
+            this.endAngle = 1.5 * Math.PI + this.offsetAngle + (this.options.angleBgCircle ? this.PI2 : this.arcAngle);
         };
 
         this.change = function (v) {
@@ -543,7 +547,7 @@ $(function () {
         };
 
         this._angle = function (v) {
-            return (v - this.options.min) * this.PI2 / (this.options.max - this.options.min);
+            return (v - this.options.min) * this.arcAngle / (this.options.max - this.options.min);
         };
 
         this.draw = function () {
@@ -565,7 +569,7 @@ $(function () {
 
             this.context.beginPath();
             this.context.strokeStyle = this.options.bgColor;
-            this.context.arc(this.xy, this.xy, this.radius, 0, this.PI2, true);
+            this.context.arc(this.xy, this.xy, this.radius, this.endAngle, this.startAngle, true);
             this.context.stroke();
 
             if (this.options.displayPrevious) {
@@ -683,12 +687,12 @@ $(function () {
         };
 
         this.draw = function () {
-            
+
             var c = this.context
                 , r = true;
 
             this.clear();
-            
+
             if (this.options.displayPrevious) {
                 c.beginPath();
                 c.lineWidth = this.cursor;
@@ -698,7 +702,7 @@ $(function () {
                 c.stroke();
                 r = (this.newValue.x == this.value.x && this.newValue.y == this.value.y);
             }
-            
+
             c.beginPath();
             c.lineWidth = this.cursor;
             c.strokeStyle = r  ? this.options.fgColor : this.fgColor;
