@@ -30,6 +30,7 @@
                                     , max:100
                                     , fgColor:"#222222"
                                     , bgColor:"#EEEEEE"
+                                    , thickness : .2
                                 })
                             .css({display:'inline',padding:'0px 10px'});
 
@@ -121,6 +122,21 @@
                         $all.trigger("configure", {height:100});
                     }
                 );
+
+
+                /*var $animDial = $(".dial"), v = 0, s = 'up', auto = true;
+                $animDial.dial().bind(
+                    'mousedown',
+                    function() { auto = false; }
+                );
+                window.requestAnimFrame(redraw = function () {
+                    if(auto) {
+                        s = v==100?'down':(v==-100?'up':s);
+                        $animDial.val(s=='up'?v++:v--).trigger('change');
+                        window.requestAnimFrame(redraw);
+                    }
+                })*/
+
             });
         </script>
         <style>
@@ -178,33 +194,21 @@
             </div>
         </div>
         <div class="rack">
-            <div style="margin:20px;">
-                <div style="float:left;width:420px;">
-                    <div style="float:left;width:400px;height:200px;padding:10px">
-                        <div style="float:left;width:216px;">
-                            <div>Dial</div>
-                            <input class="dial" data-width="180" value="0">
-                        </div>
-                        <div style="float:left;width:184px;">
-                            <div>XY</div>
-                            <input class="pad" data-width="180" data-height="180" value='{"x": 50, "y": 67}'>
-                        </div>
-                    </div>
-                    <div style="float:left;width:400px;margin-top:4px;height:240px;padding:10px 10px 10px 10px">
-                        <div style="margin-bottom:10px">Bars</div>
-                        <input class="bars" data-width="400" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23}'>
-                    </div>
-                </div>
+            <div style="float:left;width:200px;padding:20px">
+                <div style="margin-bottom:10px">Dial</div>
+                <input class="dial" data-width="180" value="0">
+                <!--<input class="dial" data-width="180" data-angleOffset="270" data-angleArc="270" value="0">/-->
+            </div>
+            <div style="float:left;width:400px;padding:20px">
+                <div style="margin-bottom:10px">Bars</div>
+                <input class="bars" data-width="400" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23}'>
+                <!--<input class="bars" data-width="400" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23,"8":10,"9":56,"10":50,"11":40}' data-cols=16 data-spacing=1>/-->
+            </div>
+            <div style="float:left;width:200px;padding:20px">
+                <div style="margin-bottom:10px">XY</div>
+                <input class="pad" data-width="180" data-height="180" value='{"x": 50, "y": 67}'>
             </div>
         </div>
-        <!--<div class="rack">
-            <div style="margin:20px;">
-                <div style="float:left;width:216px;">
-                    <div>Dial</div>
-                    <input class="dial" data-width="180" data-angleOffset="-135" data-angleArc="270" value="0">
-                </div>
-            </div>
-        </div>/-->
         <div style="border: 0 none; position: absolute; right: 0; top: 0;"><a href="https://github.com/aterrien" target="_blank"><img src="../i/github-ribbon.png" style="border: 0 none;"></a></div>
         <script type="text/javascript">
             var _gaq = _gaq || [];

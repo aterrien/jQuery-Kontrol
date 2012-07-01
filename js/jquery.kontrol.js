@@ -12,7 +12,7 @@
  *  http://www.opensource.org/licenses/mit-license.php
  *  http://www.gnu.org/licenses/gpl.html
  *
- * Thanks to vor, eskimoblood, spiffistan
+ * Thanks to vor, eskimoblood, spiffistan, FabrizioC
  */
 $(function () {
 
@@ -86,6 +86,7 @@ $(function () {
                     .draw();
             };
 
+            if(this.target.data('kontroled')) return;
             this.target.data('kontroled', true);
 
             this.extendsOptions();
@@ -461,7 +462,7 @@ $(function () {
         this.xy = null;
         this.radius = null;
         this.lineWidth = null;
-        this.cur3 = null;
+        this.cursorExt = null;
         this.w2 = null;
         this.PI2 = 2*Math.PI;
 
@@ -470,8 +471,7 @@ $(function () {
                 {
                     'bgColor' : this.target.data('bgcolor') || '#EEEEEE',
                     'angleOffset': this.target.data('angleoffset') || 0,
-                    'angleArc': this.target.data('anglearc') || 360,
-                    'angleBgCircle': this.target.data('anglebgcircle') || false
+                    'angleArc': this.target.data('anglearc') || 360
                 }, this.options
             );
         };
@@ -492,10 +492,13 @@ $(function () {
             b = a = Math.atan2(
                         x - (this.x + this.w2)
                         , - (y - this.y - this.w2)
-                    ) - this.offsetAngle;
-            (a < 0) && (b = a + this.arcAngle);
-            ret = Math.round(b * (this.options.max - this.options.min) / this.arcAngle) + this.options.min;
-            this.options.stopper && (ret = Math.max(Math.min(ret, this.options.max), this.options.min));
+                    ) - this.angleOffset;
+            (a < 0) && (b = a + this.angleArc);
+            ret = Math.round(b * (this.options.max - this.options.min) / this.angleArc)
+                    + this.options.min;
+            this.options.stopper
+                && (ret = Math.max(Math.min(ret, this.options.max), this.options.min));
+
             return ret;
         };
 
@@ -522,7 +525,7 @@ $(function () {
             ) this.value = this.options.min;
             this.target.val(this.value);
             this.w2 = this.options.width / 2;
-            this.cur3 = this.options.cursor / 100;
+            this.cursorExt = this.options.cursor / 100;
             this.xy = this.w2;
             this.lineWidth = this.xy * this.options.thickness;
             this.radius = this.xy - this.lineWidth / 2;
@@ -534,11 +537,12 @@ $(function () {
             && (this.options.angleArc = isNaN(this.options.angleArc) ? this.PI2 : this.options.angleArc);
 
             // deg to rad
-            this.offsetAngle = this.options.angleOffset * Math.PI / 180;
-            this.arcAngle = this.options.angleArc * Math.PI / 180;
+            this.angleOffset = this.options.angleOffset * Math.PI / 180;
+            this.angleArc = this.options.angleArc * Math.PI / 180;
 
-            this.startAngle = 1.5 * Math.PI + this.offsetAngle;
-            this.endAngle = 1.5 * Math.PI + this.offsetAngle + (this.options.angleBgCircle ? this.PI2 : this.arcAngle);
+            // compute start and end angles
+            this.startAngle = 1.5 * Math.PI + this.angleOffset;
+            this.endAngle = 1.5 * Math.PI + this.angleOffset + this.angleArc;
         };
 
         this.change = function (v) {
@@ -547,16 +551,15 @@ $(function () {
         };
 
         this._angle = function (v) {
-            return (v - this.options.min) * this.arcAngle / (this.options.max - this.options.min);
+            return (v - this.options.min) * this.angleArc / (this.options.max - this.options.min);
         };
 
         this.draw = function () {
 
             var a = this._angle(this.newValue)  // Angle
-                , sa = this.startAngle          // Previous start angle
                 , sat = this.startAngle         // Start angle
-                , ea                            // Previous end angle
                 , eat = sat + a                 // End angle
+                , sa, ea                        // Previous angles
                 , r = true;
                 ;
 
@@ -564,8 +567,8 @@ $(function () {
             this.context.lineWidth = this.lineWidth;
 
             this.options.cursor
-                && (sat = eat - this.cur3)
-                && (eat = eat + this.cur3);
+                && (sat = eat - this.cursorExt)
+                && (eat = eat + this.cursorExt);
 
             this.context.beginPath();
             this.context.strokeStyle = this.options.bgColor;
@@ -574,9 +577,10 @@ $(function () {
 
             if (this.options.displayPrevious) {
                 ea = this.startAngle + this._angle(this.value);
+                sa = this.startAngle;
                 this.options.cursor
-                    && (sa = ea - this.cur3)
-                    && (ea = ea + this.cur3);
+                    && (sa = ea - this.cursorExt)
+                    && (ea = ea + this.cursorExt);
 
                 this.context.beginPath();
                 this.context.strokeStyle = this.previousColor;
@@ -739,6 +743,7 @@ $(function () {
         this.col = null;
         this.colWidth = null;
         this.vals = {};
+        this.fontSize = null;
 
         this.extendsOptions = function () {
             this.options = $.extend(
@@ -748,7 +753,7 @@ $(function () {
                     'displayValues' : true,
                     'displayInput' : false,
                     'width' : this.target.data('width') || 600,
-                    'height' : this.target.data('height') || 200,
+                    'height' : (this.target.data('height') || 200),
                     'fgColor' : this.target.data('fgcolor') || '#87CEEB',
                     'bgColor' : this.target.data('bgcolor') || '#CCCCCC',
                     'cols' : this.target.data('cols') || 8,
@@ -756,6 +761,14 @@ $(function () {
                 }
                 ,this.options
             );
+
+            (this.options.cols == 1) && (this.options.spacing = 0);
+            this.colWidth = Math.floor((this.options.width - this.options.spacing * this.options.cols) / this.options.cols);
+
+            if(this.options.displayValues) {
+                this.fontSize = Math.max(Math.round(this.colWidth/3), 10);
+                this.options.height -= this.fontSize;
+            }
         };
 
         this.xy2val = function (x, y) {
@@ -772,8 +785,6 @@ $(function () {
         };
 
         this.init = function () {
-            (this.options.cols == 1) && (this.options.spacing = 0);
-            this.colWidth = Math.floor((this.options.width - this.options.spacing * this.options.cols) / this.options.cols);
             this.bar = this.options.height / (this.options.max - this.options.min);
             this.mid = this.options.max * this.bar;
         };
@@ -843,17 +854,16 @@ $(function () {
             c.stroke();
 
             if (this.options.displayValues) {
-                var fs = Math.max(Math.round(this.colWidth/3), 10);
-
                 if (!this.vals[col]) {
-                    this.vals[col] = $("<div style='float:left;font:bold " + fs + "px Arial;text-align:center;'>0</div>");
+                    this.vals[col] = $("<div style='float:left;font:bold " + this.fontSize + "px Arial;text-align:center;'>0</div>");
                     this.target.parent().append(this.vals[col]);
                 }
                 this.vals[col]
                     .css({
                             "opacity" : !r ? 1 : 0.6
-                            ,"width" : this.colWidth+1
-                            ,"font-size" : fs + "px"
+                            ,"width" : this.colWidth +  this.options.spacing
+                            ,"height" : this.fontSize
+                            ,"font-size" : this.fontSize + "px"
                             ,"color" : this.fgColor
                         })
                     .html(this.newValue[col]);
