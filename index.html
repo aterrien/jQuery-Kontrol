@@ -26,9 +26,7 @@
 
                 $(".dial")
                             .dial({
-                                    min:-100
-                                    , max:100
-                                    , fgColor:"#FFFFFF"
+                                    fgColor:"#FFFFFF"
                                     , bgColor:"#444444"
                                     , thickness : .3
                                 })
@@ -196,7 +194,7 @@
         <div class="rack">
             <div style="float:left;width:200px;padding:20px">
                 <div style="margin-bottom:10px">Dial</div>
-                <input class="dial" data-width="180" data-height="180" value="0">
+                <input class="dial" data-width="180" data-height="180" data-min=-100 data-max=100 value="0">
             </div>
             <div style="float:left;width:200px;padding:20px">
                 <div style="margin-bottom:10px">XY</div>
@@ -204,7 +202,7 @@
             </div>
             <div style="float:left;width:200px;padding:20px">
                 <div style="margin-bottom:10px">Dial with angleOffset</div>
-                <input class="dial" data-width="180" data-height="180" data-angleOffset="-125" data-angleArc="250" value="0">
+                <input class="dial" data-width="180" data-height="180" data-min=-10000 data-max=10000 data-angleOffset="-125" data-angleArc="250" value="0">
             </div>
             <div style="width:400px;padding:20px">
                 <div style="margin-bottom:10px">Bars</div>
