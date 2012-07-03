@@ -10,8 +10,8 @@
                     , $body = $("body");
 
                 $(".bars").bars({
-                                    fgColor:"#222222"
-                                    , bgColor:"#EEEEEE"
+                                    fgColor:"#FFFFFF"
+                                    , bgColor:"#444444"
                                 });
                             
                 var $pad = $(".pad")
@@ -19,17 +19,17 @@
                                     displayPrevious:false
                                     , min : -100
                                     , max : 100
-                                    , fgColor:"#222222"
-                                    , bgColor:"#EEEEEE"
+                                    , fgColor:"#FFFFFF"
+                                    , bgColor:"#444444"
                                     })
-                            .css({'border':'5px solid #DDD'});
+                            .css({'border':'5px solid #BBB'});
 
                 $(".dial")
                             .dial({
                                     min:-100
                                     , max:100
-                                    , fgColor:"#222222"
-                                    , bgColor:"#EEEEEE"
+                                    , fgColor:"#FFFFFF"
+                                    , bgColor:"#444444"
                                     , thickness : .3
                                 })
                             .css({display:'inline',padding:'0px 10px'});
@@ -159,7 +159,7 @@
             }
         </style>
     </head>
-    <body style="padding:0px;margin:0px;color:#222222">
+    <body style="padding:0px;margin:0px;color:#FFFFFF;background-color:#222222">
         <div style="background-color:#222222;border-bottom:1px solid #AAA;width:100%;font:50px Arial;letter-spacing:-3px;">
             <div style="padding:20px;width:600px;color:#FFF">
                 jQuery <strong>Kontrol</strong>
@@ -172,8 +172,8 @@
             <div style="float:left">colors<br>
                 <select id="skin">
                     <option value="skin0">default</option>
-                    <option value="skin1" selected>black</option>
-                    <option value="skin2">white</option>
+                    <option value="skin1">black</option>
+                    <option value="skin2" selected>white</option>
                     <option value="skin3">green</option>
                     <option value="skin4">red</option>
                 </select>
@@ -196,17 +196,20 @@
         <div class="rack">
             <div style="float:left;width:200px;padding:20px">
                 <div style="margin-bottom:10px">Dial</div>
-                <input class="dial" data-width="180" value="0">
-                <!--<input class="dial" data-width="180" data-angleOffset="-125" data-angleArc="250" value="0">/-->
-            </div>
-            <div style="float:left;width:400px;padding:20px">
-                <div style="margin-bottom:10px">Bars</div>
-                <input class="bars" data-width="400" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23}'>
-                <!--<input class="bars" data-width="400" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23,"8":10,"9":56,"10":50,"11":40}' data-cols=16 data-spacing=1>/-->
+                <input class="dial" data-width="180" data-height="180" value="0">
             </div>
             <div style="float:left;width:200px;padding:20px">
                 <div style="margin-bottom:10px">XY</div>
                 <input class="pad" data-width="180" data-height="180" value='{"x": 50, "y": 67}'>
+            </div>
+            <div style="float:left;width:200px;padding:20px">
+                <div style="margin-bottom:10px">Dial with angleOffset</div>
+                <input class="dial" data-width="180" data-height="180" data-angleOffset="-125" data-angleArc="250" value="0">
+            </div>
+            <div style="width:400px;padding:20px">
+                <div style="margin-bottom:10px">Bars</div>
+                <input class="bars" data-width="680" data-cols="16" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23,"8":10,"9":56,"10":50,"11":40,"12":45,"13":50,"14":45,"15":35}'>
+                <!--<input class="bars" data-width="400" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23,"8":10,"9":56,"10":50,"11":40}' data-cols=16 data-spacing=1>/-->
             </div>
         </div>
         <div style="border: 0 none; position: absolute; right: 0; top: 0;"><a href="https://github.com/aterrien" target="_blank"><img src="../i/github-ribbon.png" style="border: 0 none;"></a></div>

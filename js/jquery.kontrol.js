@@ -149,7 +149,7 @@ $(function () {
 
             this._listen()
                 ._configure()
-                ._xyInit()
+                ._xy()
                 .init();
 
             this.isInitialized = true;
@@ -280,7 +280,7 @@ $(function () {
             return this;
         };
 
-        this._xyInit = function () {
+        this._xy = function () {
             var offset = this.canvas.offset();
             this.x = offset.left;
             this.y = offset.top;
@@ -298,14 +298,14 @@ $(function () {
                         "mousedown"
                         , function (e) {
                             e.preventDefault();
-                            self._xyInit()._mouseDown(e);
+                            self._xy()._mouseDown(e);
                          }
                     )
                     .bind(
                         "touchstart"
                         , function (e) {
                             e.preventDefault();
-                            self._xyInit()._touchStart(e);
+                            self._xy()._touchStart(e);
                          }
                     );
 
