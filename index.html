@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>jQuery Kontrol demo</title>
+        <title>jQuery Kontrol</title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.0/jquery.min.js"></script>
         <script src="js/jquery.kontrol.js"></script>
         <script>
             $(function() {
-                var $all = $(".dial, .bars, .pad")
+                var $all = $(".dial, .bars1, .bars2, .pad")
                     , $body = $("body");
 
-                $(".bars").bars({
-                                    fgColor:"#FFFFFF"
-                                    , bgColor:"#444444"
+                $(".bars1").bars({
+                                    fgColor:"#222222"
+                                    , bgColor:"#EEEEEE"
                                 });
-                            
+                          /*.css({
+                                    border:'1px solid #FFF',
+                                    padding:'2px'
+                                })*/
+
+                $(".bars2").bars({
+                                    fgColor:"#222222"
+                                    , bgColor:"#EEEEEE"
+                                });
+
                 var $pad = $(".pad")
                             .xy({
                                     displayPrevious:false
                                     , min : -100
                                     , max : 100
-                                    , fgColor:"#FFFFFF"
-                                    , bgColor:"#444444"
+                                    , fgColor:"#222222"
+                                    , bgColor:"#EEEEEE"
                                     })
                             .css({'border':'5px solid #BBB'});
 
                 $(".dial")
                             .dial({
-                                    fgColor:"#FFFFFF"
-                                    , bgColor:"#444444"
+                                    fgColor:"#222222"
+                                    , bgColor:"#EEEEEE"
                                     , thickness : .3
                                 })
                             .css({display:'inline',padding:'0px 10px'});
@@ -121,25 +130,42 @@
                     }
                 );
 
+                /*
+                var $animBars = $(".bars1"), v =  0, s = 'up'
+                    , $ipt, i = 0, t;
+                var redraw = function () {
 
-                /*var $animDial = $(".dial"), v = 0, s = 'up', auto = true;
-                $animDial.dial().bind(
-                    'mousedown',
-                    function() { auto = false; }
-                );
-                window.requestAnimFrame(redraw = function () {
-                    if(auto) {
-                        s = v==100?'down':(v==-100?'up':s);
-                        $animDial.val(s=='up'?v++:v--).trigger('change');
-                        window.requestAnimFrame(redraw);
-                    }
-                })*/
+                    if(v==15 || v==0) i++;
+                    s = v==15?'down':(v==0?'up':s);
+                    s=='up'?v++:v--;
 
+                    $ipt = $animBars
+                            .find('input:eq('+v+')')
+                            .val(Math.floor(Math.sin(v*i)*100))
+                            .trigger('change');
+
+                    t = window.setTimeout(redraw, 16);
+                };
+                redraw();
+                $animBars.parent().bind('click', function() {
+                    window.clearTimeout(t);
+                });
+                */
             });
         </script>
         <style>
-            .rack{font:bold 14px monospace;}
-            ul{padding:0px;margin:0px;list-style-type: none;font:10px Arial}
+            body{
+              padding: 0;
+              margin: 0;
+              font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+              font-weight: 300;
+              text-rendering: optimizelegibility;
+            }
+            p{font-size: 30px; line-height: 30px}
+            div.demo{text-align: center; width: 300px; float: left}
+            div.demo > p{font-size: 20px}
+
+            .rack{font:bold 14px;}
             .opt{
                 background:#FFF;
                 -webkit-box-shadow: inset 0 4px 4px -2px #888, inset 0 -4px 4px -2px #888;
@@ -157,21 +183,24 @@
             }
         </style>
     </head>
-    <body style="padding:0px;margin:0px;color:#FFFFFF;background-color:#222222">
-        <div style="background-color:#222222;border-bottom:1px solid #AAA;width:100%;font:50px Arial;letter-spacing:-3px;">
-            <div style="padding:20px;width:600px;color:#FFF">
-                jQuery <strong>Kontrol</strong>
-                <a href="http://flattr.com/thing/674900/jQuery-Knob" target="_blank">
+    <body style="color:#222;background-color:#FFF">
+        <div style="border-bottom:1px solid #AAA;padding:0px 50px;">
+            <div style="width:100%;font-size:40px;letter-spacing:-8px;line-height:50px;">
+                <h1>jQuery Kontrol</h1>
+            </div>
+            <p>Simple and extensible library of user interface components :
+                Dial (dial, circular gauge), XY (XY pad), Bars (mixer, level meter ...).
+            <a href="http://flattr.com/thing/674900/jQuery-Knob" target="_blank">
                     <img src="http://api.flattr.com/button/flattr-badge-large.png" alt="Flattr this" title="Flattr this" border="0" />
                 </a>
-            </div>
+            </p>
         </div>
-        <div class="opt" style="height:50px;padding:10px">
+        <div class="opt" style="height:50px;padding:15px 50px">
             <div style="float:left">colors<br>
                 <select id="skin">
                     <option value="skin0">default</option>
-                    <option value="skin1">black</option>
-                    <option value="skin2" selected>white</option>
+                    <option value="skin1" selected>black</option>
+                    <option value="skin2">white</option>
                     <option value="skin3">green</option>
                     <option value="skin4">red</option>
                 </select>
@@ -191,24 +220,71 @@
                 </select>
             </div>
         </div>
-        <div class="rack">
-            <div style="float:left;width:200px;padding:20px">
+        <div class="rack" style="padding:0px 20px">
+            <div style="float:left;width:200px;padding:30px">
                 <div style="margin-bottom:10px">Dial</div>
                 <input class="dial" data-width="180" data-height="180" data-min=-100 data-max=100 value="0">
             </div>
-            <div style="float:left;width:200px;padding:20px">
+            <div style="float:left;width:200px;padding:30px">
                 <div style="margin-bottom:10px">XY</div>
-                <input class="pad" data-width="180" data-height="180" value='{"x": 50, "y": 67}'>
+                <fieldset class="pad" data-width="180" data-height="180">
+                    <legend>XY Pad</legend>
+                    x : <input name="x" value=50>
+                    y : <input name="y" value=67>
+                </fieldset>
             </div>
-            <div style="float:left;width:200px;padding:20px">
+            <div style="float:left;width:200px;padding:30px">
                 <div style="margin-bottom:10px">Dial with angleOffset</div>
                 <input class="dial" data-width="180" data-height="180" data-min=-10000 data-max=10000 data-angleOffset="-125" data-angleArc="250" value="0">
             </div>
-            <div style="width:400px;padding:20px">
+            <div style="width:400px;padding:30px">
                 <div style="margin-bottom:10px">Bars</div>
-                <input class="bars" data-width="680" data-cols="16" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23,"8":10,"9":56,"10":50,"11":40,"12":45,"13":50,"14":45,"15":35}'>
-                <!--<input class="bars" data-width="400" data-min="-100" data-max="100" value='{"0":4,"1":8,"2":-85,"3":50,"4":92,"5":43,"6":34,"7":-23,"8":10,"9":56,"10":50,"11":40}' data-cols=16 data-spacing=1>/-->
+                <fieldset class="bars1" data-width="720" data-cols="16" data-min="-100" data-max="100">
+                    <legend>16 tracks</legend>
+                    <input value=10>
+                    <input value=-10>
+                    <input value=-10>
+                    <input value=-10>
+                    <input value=-20>
+                    <input value=-20>
+                    <input value=-20>
+                    <input value=-100>
+                    <input value=-100>
+                    <input value=-20>
+                    <input value=-20>
+                    <input value=-20>
+                    <input value=-10>
+                    <input value=-10>
+                    <input value=-10>
+                    <input value=10>
+                </fieldset>
             </div>
+            <!--<div style="clear:both;margin-bottom:10px"></div>
+            <div style="width:400px;height:30px;padding:10px 30px">
+                <fieldset class="bars2" data-width="720" data-height="20" data-displayInput=false data-cols="16" data-min="0" data-max="1">
+                    <legend>16 step</legend>
+                    <input value=0>
+                    <input value=0>
+                    <input value=0>
+                    <input value=0>
+                    <input value=0>
+                    <input value=0>
+                    <input value=0>
+                    <input value=0>
+                    <input value=1>
+                    <input value=1>
+                    <input value=0>
+                    <input value=1>
+                    <input value=0>
+                    <input value=0>
+                    <input value=0>
+                    <input value=0>
+                </fieldset>
+            </div>/-->
+        </div>
+        <div style="clear:both"></div>
+        <div style="padding:30px">
+            <p style="font-size:20px;">jQuery Kontrol is &copy; 2012 Anthony Terrien and dual licensed under the MIT or GPL licenses.</p>
         </div>
         <div style="border: 0 none; position: absolute; right: 0; top: 0;"><a href="https://github.com/aterrien" target="_blank"><img src="../i/github-ribbon.png" style="border: 0 none;"></a></div>
         <script type="text/javascript">
