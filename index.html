@@ -12,16 +12,15 @@
                 $(".bars1").bars({
                                     fgColor:"#222222"
                                     , bgColor:"#EEEEEE"
+                                    /*, change : function (value) {
+                                        console.log("change : ", value);
+                                    }*/
                                 });
-                          /*.css({
-                                    border:'1px solid #FFF',
-                                    padding:'2px'
-                                })*/
 
-                $(".bars2").bars({
+                /*$(".bars2").bars({
                                     fgColor:"#222222"
                                     , bgColor:"#EEEEEE"
-                                });
+                                });*/
 
                 var $pad = $(".pad")
                             .xy({
@@ -30,7 +29,10 @@
                                     , max : 100
                                     , fgColor:"#222222"
                                     , bgColor:"#EEEEEE"
-                                    })
+                                    /*, change : function (value) {
+                                        console.log("change : ", value);
+                                    }*/
+                                })
                             .css({'border':'5px solid #BBB'});
 
                 $(".dial")
@@ -38,6 +40,9 @@
                                     fgColor:"#222222"
                                     , bgColor:"#EEEEEE"
                                     , thickness : .3
+                                    /*, change : function (value) {
+                                        console.log("change : ", value);
+                                    }*/
                                 })
                             .css({display:'inline',padding:'0px 10px'});
 
@@ -130,27 +135,35 @@
                     }
                 );
 
-                /*
-                var $animBars = $(".bars1"), v =  0, s = 'up'
-                    , $ipt, i = 0, t;
-                var redraw = function () {
 
-                    if(v==15 || v==0) i++;
-                    s = v==15?'down':(v==0?'up':s);
-                    s=='up'?v++:v--;
+                var $animBars = $(".bars1"), $dial = $(".dial"), timeout;
+                $("#animate").bind(
+                    'click',
+                    function() {
+                        if($(this).is(':checked')) {
+                            var  v =  0, s = 'up', i = 0;
+                            var redraw = function () {
 
-                    $ipt = $animBars
-                            .find('input:eq('+v+')')
-                            .val(Math.floor(Math.sin(v*i)*100))
-                            .trigger('change');
+                                if(v==15 || v==0) i++;
+                                s = v==15?'down':(v==0?'up':s);
+                                s=='up'?v++:v--;
 
-                    t = window.setTimeout(redraw, 16);
-                };
-                redraw();
-                $animBars.parent().bind('click', function() {
-                    window.clearTimeout(t);
-                });
-                */
+                                $animBars
+                                    .find('input:eq('+v+')')
+                                    .val(Math.floor(Math.sin(v*i)*100))
+                                    .trigger('change');
+
+                                /*$dial
+                                    .val(v)
+                                    .trigger('change');*/
+
+                                timeout = window.setTimeout(redraw, 16);
+                            };
+                            redraw();
+                        } else {
+                            window.clearTimeout(timeout);
+                        }
+                    });
             });
         </script>
         <style>
@@ -171,10 +184,10 @@
                 -webkit-box-shadow: inset 0 4px 4px -2px #888, inset 0 -4px 4px -2px #888;
                 -moz-box-shadow: inset 0 4px 4px -2px #888, inset 0 -4px 4px -2px #888;
                 box-shadow: inset 0 4px 4px -2px #888, inset 0 -4px 4px -2px #888;
-                color:#AAA; font:10px Arial;
             }
             .opt div{
                 padding:0px 10px;
+                color:#AAA; font:10px Arial;
             }
             select {
                width: 100px;
@@ -185,7 +198,7 @@
     </head>
     <body style="color:#222;background-color:#FFF">
         <div style="border-bottom:1px solid #AAA;padding:0px 50px;">
-            <div style="width:100%;font-size:40px;letter-spacing:-8px;line-height:50px;">
+            <div style="width:100%;font-size:40px;letter-spacing:-8px;line-height:40px;">
                 <h1>jQuery Kontrol</h1>
             </div>
             <p>Simple and extensible library of user interface components :
@@ -238,11 +251,11 @@
                 <input class="dial" data-width="180" data-height="180" data-min=-10000 data-max=10000 data-angleOffset="-125" data-angleArc="250" value="0">
             </div>
             <div style="width:400px;padding:30px">
-                <div style="margin-bottom:10px">Bars</div>
+                <div style="margin-bottom:10px">Bars (<input type="checkbox" id="animate" style=""> animate !)</div>
                 <fieldset class="bars1" data-width="720" data-cols="16" data-min="-100" data-max="100">
                     <legend>16 tracks</legend>
-                    <input value=10>
-                    <input value=-10>
+                    <input value=90>
+                    <input value=40>
                     <input value=-10>
                     <input value=-10>
                     <input value=-20>
@@ -255,8 +268,8 @@
                     <input value=-20>
                     <input value=-10>
                     <input value=-10>
-                    <input value=-10>
-                    <input value=10>
+                    <input value=40>
+                    <input value=90>
                 </fieldset>
             </div>
             <!--<div style="clear:both;margin-bottom:10px"></div>

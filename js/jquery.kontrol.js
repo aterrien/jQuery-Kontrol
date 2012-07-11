@@ -33,7 +33,7 @@ $(function () {
     };
 
     // requestAnimationFrame suport
-    window.requestAnimFrame = (function () {
+    /*window.requestAnimFrame = (function () {
                               return  window.requestAnimationFrame       ||
                                       window.webkitRequestAnimationFrame ||
                                       window.mozRequestAnimationFrame    ||
@@ -42,7 +42,7 @@ $(function () {
                                       function (callback) {
                                             window.setTimeout(callback, 15);
                                       };
-                            })();
+                            })();*/
 
     /**
      * kontrol.Object
@@ -76,7 +76,6 @@ $(function () {
         this.changeHook = null;
         this.cancelHook = null;
         this.releaseHook = null;
-        this.drawReady = true;
 
         this.run = function () {
             var o, cf = function (e, conf) {
@@ -188,7 +187,7 @@ $(function () {
             return this;
         };
 
-        this._frame = function (e) {
+        /*this._frame = function (e) {
             var redraw = function () {
                     if (self.isPressed) {
                         self._draw(e);
@@ -197,23 +196,20 @@ $(function () {
                 }
             self.isPressed = true;
             window.requestAnimFrame(redraw);
-        };
+        };*/
 
-        this._draw = function (e) {
+        this._draw = function () {
             if (
                 this.drawHook
                 && (this.drawHook() === false)
             ) return;
 
             this.draw();
-            this.drawReady = true;
         };
 
         this._touchStart = function (e) {
 
             var touchMove = function (e) {
-                if(!self.drawReady) return;
-
                 var v = self._touchCapture(e).xy2val(self.dx, self.dy);
                 if (v == this.newValue) return;
 
@@ -223,12 +219,14 @@ $(function () {
                 ) return;
 
                 self.change(v);
-                self.drawReady = false;
+                self._draw();
             };
 
             this.touchesIndex = kontrol.Core.getTouchesIndex(e, this.touchesIndex);
             this.change(this._touchCapture(e).xy2val(this.dx,this.dy));
-            this._frame(e);
+            
+            this._draw();
+            //this._frame(e);
 
             // Touch events listeners
             kontrol.Core.document
@@ -255,8 +253,6 @@ $(function () {
         this._mouseDown = function (e) {
 
             var mouseMove = function (e) {
-                if(!self.drawReady) return;
-
                 var v = self.xy2val(e.pageX, e.pageY);
                 if (v == self.newValue) return;
 
@@ -266,11 +262,13 @@ $(function () {
                 ) return;
 
                 self.change(v);
-                self.drawReady = false;
+                self._draw();
             };
 
             this.change(this.xy2val(e.pageX, e.pageY));
-            this._frame(e);
+            
+            //this._frame(e);
+            this._draw();
 
             // Mouse events listeners
             kontrol.Core.document
@@ -407,7 +405,6 @@ $(function () {
         this.startAngle = null;
         this.xy = null;
         this.radius = null;
-        this.lineWidth = null;
         this.cursorExt = null;
         this.w2 = null;
         this.PI2 = 2*Math.PI;
@@ -462,12 +459,18 @@ $(function () {
             // bind MouseWheel
             var self = this
                 , mw = function (e) {
-                            e.preventDefault();
                             var ori = e.originalEvent
                                 ,deltaX = ori.detail || ori.wheelDeltaX
                                 ,deltaY = ori.detail || ori.wheelDeltaY
-                                ,val = parseInt(self.target.val()) + (deltaX>0 || deltaY>0 ? 1 : deltaX<0 || deltaY<0 ? -1 : 0);
-                            self.val(val);
+                                ,v = parseInt(self.target.val()) + (deltaX>0 || deltaY>0 ? 1 : deltaX<0 || deltaY<0 ? -1 : 0);
+                            
+                            if (
+                                self.changeHook
+                                && (self.changeHook(v) === false)
+                            ) return;
+
+                            self.val(v);
+                            e.preventDefault();
                         }
                 , kval, to, m = 1, kv = {37:-1, 38:1, 39:1, 40:-1};
 
@@ -493,7 +496,8 @@ $(function () {
                                 self.options.stopper
                                 && (v = Math.max(Math.min(v, self.options.max), self.options.min));
 
-                                self._frame(e);
+                                self._draw();
+                                //self._frame(e);
                                 self.change(v);
 
                                 // long time keydown speed-up
@@ -541,8 +545,8 @@ $(function () {
             this.w2 = this.options.width / 2;
             this.cursorExt = this.options.cursor / 100;
             this.xy = this.w2;
-            this.lineWidth = this.xy * this.options.thickness;
-            this.radius = this.xy - this.lineWidth / 2;
+            this.context.lineWidth = this.xy * this.options.thickness;
+            this.radius = this.xy - this.context.lineWidth / 2;
 
             this.options.angleOffset
             && (this.options.angleOffset = isNaN(this.options.angleOffset) ? 0 : this.options.angleOffset);
@@ -604,8 +608,6 @@ $(function () {
                 , r = true;
 
             this.clear();
-
-            this.context.lineWidth = this.lineWidth;
 
             this.options.cursor
                 && (sat = eat - this.cursorExt)
@@ -884,7 +886,6 @@ $(function () {
         this.change = function (v) {
             for (var i in v) {
                 this.newValue[i] = v[i];
-                //this.col = parseInt(i);
                 this.input[i].val(this.newValue[i]);
             }
         };
@@ -912,38 +913,40 @@ $(function () {
 
         this._drawBar = function (col) {
 
-            var o = this.options
-                , x
-                , c = this.context;
-
-            x = (col * (this.colWidth + o.spacing) + this.colWidth / 2);
+            var x = (col * (this.colWidth + this.options.spacing) + this.colWidth / 2);
 
             if (this.displayMidLine) {
-                c.beginPath();
-                c.lineWidth = this.colWidth;
-                c.strokeStyle = this.options.fgColor;
-                c.moveTo(x, this.mid);
-                c.lineTo(x, this.mid + 1);
-                c.stroke();
+                this.context.beginPath();
+                this.context.lineWidth = this.colWidth;
+                this.context.strokeStyle = this.options.fgColor;
+                this.context.moveTo(x, this.mid);
+                this.context.lineTo(x, this.mid + 1);
+                this.context.stroke();
             }
 
             if (this.options.displayPrevious) {
-                c.beginPath();
-                c.lineWidth = this.colWidth;
-                c.strokeStyle = (this.newValue[col] == this.value[col]) ? o.fgColor : this.previousColor;
-                if (this.options.cursor) c.lineTo(x, this.mid - Math.floor(this.value[col] * this.bar) + this.options.cursor / 2);
-                else c.moveTo(x, this.mid);
-                c.lineTo(x, this.mid - Math.floor(this.value[col] * this.bar) - this.options.cursor / 2);
-                c.stroke();
+                this.context.beginPath();
+                this.context.lineWidth = this.colWidth;
+                this.context.strokeStyle = (this.newValue[col] == this.value[col]) ? this.options.fgColor : this.previousColor;
+                if (this.options.cursor) {
+                    this.context.lineTo(x, this.mid - Math.floor(this.value[col] * this.bar) + this.options.cursor / 2);
+                } else {
+                    this.context.moveTo(x, this.mid);
+                }
+                this.context.lineTo(x, this.mid - Math.floor(this.value[col] * this.bar) - this.options.cursor / 2);
+                this.context.stroke();
             }
 
-            c.beginPath();
-            c.lineWidth = this.colWidth;
-            c.strokeStyle = this.fgColor;
-            if (this.options.cursor) c.lineTo(x, this.mid - Math.floor(this.newValue[col] * this.bar) + this.options.cursor / 2);
-            else c.moveTo(x, this.mid);
-            c.lineTo(x, this.mid - Math.floor(this.newValue[col] * this.bar) - this.options.cursor / 2);
-            c.stroke();
+            this.context.beginPath();
+            this.context.lineWidth = this.colWidth;
+            this.context.strokeStyle = this.fgColor;
+            if (this.options.cursor) {
+                this.context.lineTo(x, this.mid - Math.floor(this.newValue[col] * this.bar) + this.options.cursor / 2);
+            } else {
+                this.context.moveTo(x, this.mid);
+            }
+            this.context.lineTo(x, this.mid - Math.floor(this.newValue[col] * this.bar) - this.options.cursor / 2);
+            this.context.stroke();
         };
 
         this.draw = function () {
