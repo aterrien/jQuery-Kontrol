@@ -34,15 +34,15 @@ $(function () {
 
     // requestAnimationFrame suport
     /*window.requestAnimFrame = (function () {
-                              return  window.requestAnimationFrame       ||
-                                      window.webkitRequestAnimationFrame ||
-                                      window.mozRequestAnimationFrame    ||
-                                      window.oRequestAnimationFrame      ||
-                                      window.msRequestAnimationFrame     ||
-                                      function (callback) {
-                                            window.setTimeout(callback, 15);
-                                      };
-                            })();*/
+        return  window.requestAnimationFrame       ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame    ||
+                window.oRequestAnimationFrame      ||
+                window.msRequestAnimationFrame     ||
+                function (callback) {
+                    window.setTimeout(callback, 1000/60); //60 FPS
+                };
+    })();*/
 
     /**
      * kontrol.Object
@@ -146,6 +146,7 @@ $(function () {
                 // input = integer
                 this.input = this.target;
                 this.value = this.target.val();
+                (this.value == '') && (this.value = this.options.min);
 
                 this.target.bind(
                     'change'
@@ -158,10 +159,11 @@ $(function () {
             (!o.displayInput) && this.target.hide();
 
             this.canvas = $('<canvas width="' + o.width + 'px" height="' + o.height + 'px"></canvas>');
+            this.context = this.canvas[0].getContext("2d");
+            
             this.target
                 .wrap($('<div style="' + (o.inline ? 'display:inline;' : '') + 'width:' + o.width + 'px;height:' + o.height + 'px;"></div>'))
                 .before(this.canvas);
-            this.context = this.canvas[0].getContext("2d");
 
             if (this.value instanceof Object) {
                 this.newValue = {};
@@ -187,13 +189,13 @@ $(function () {
             return this;
         };
 
-        /*this._frame = function (e) {
+        /*this._frame = function () {
             var redraw = function () {
-                    if (self.isPressed) {
-                        self._draw(e);
-                        window.requestAnimFrame(redraw);
-                    }
+                if (self.isPressed) {
+                    self._draw();
+                    window.requestAnimFrame(redraw);
                 }
+            };
             self.isPressed = true;
             window.requestAnimFrame(redraw);
         };*/
@@ -223,10 +225,9 @@ $(function () {
             };
 
             this.touchesIndex = kontrol.Core.getTouchesIndex(e, this.touchesIndex);
-            this.change(this._touchCapture(e).xy2val(this.dx,this.dy));
-            
-            this._draw();
-            //this._frame(e);
+
+            // First touch
+            touchMove(e);
 
             // Touch events listeners
             kontrol.Core.document
@@ -234,9 +235,8 @@ $(function () {
                 .bind(
                     "touchend.k"
                     , function (e) {
-                        kontrol.Core.document.unbind('touchmove.k touchend.k keyup.k');
-
-                        self.isPressed = false;
+                        //self.isPressed = false;
+                        kontrol.Core.document.unbind('touchmove.k touchend.k');
 
                         if (
                             self.releaseHook
@@ -265,10 +265,8 @@ $(function () {
                 self._draw();
             };
 
-            this.change(this.xy2val(e.pageX, e.pageY));
-            
-            //this._frame(e);
-            this._draw();
+            // First click
+            mouseMove(e);
 
             // Mouse events listeners
             kontrol.Core.document
@@ -292,9 +290,7 @@ $(function () {
                 .bind(
                     "mouseup.k"
                     , function (e) {
-
-                        self.isPressed = false;
-
+                        //self.isPressed = false;
                         kontrol.Core.document.unbind('mousemove.k mouseup.k keyup.k');
 
                         if (
@@ -459,6 +455,8 @@ $(function () {
             // bind MouseWheel
             var self = this
                 , mw = function (e) {
+                            e.preventDefault();
+                            
                             var ori = e.originalEvent
                                 ,deltaX = ori.detail || ori.wheelDeltaX
                                 ,deltaY = ori.detail || ori.wheelDeltaY
@@ -470,7 +468,6 @@ $(function () {
                             ) return;
 
                             self.val(v);
-                            e.preventDefault();
                         }
                 , kval, to, m = 1, kv = {37:-1, 38:1, 39:1, 40:-1};
 
@@ -491,22 +488,22 @@ $(function () {
 
                             // arrows
                             if ($.inArray(kc,[37,38,39,40]) > -1) {
+                                e.preventDefault();
+                                
                                 var v = parseInt(self.target.val()) + kv[kc] * m;
 
                                 self.options.stopper
                                 && (v = Math.max(Math.min(v, self.options.max), self.options.min));
 
                                 self._draw();
-                                //self._frame(e);
+                                //self._frame();
                                 self.change(v);
 
                                 // long time keydown speed-up
                                 to = window.setTimeout(
-                                                        function () { m < 20 && m++; }
-                                                        ,30
-                                                      );
-
-                                e.preventDefault();
+                                    function () { m < 20 && m++; }
+                                    ,30
+                                );
                             }
                         }
                     }
@@ -515,7 +512,7 @@ $(function () {
                     "keyup"
                     ,function (e) {
                         if (isNaN(kval)) {
-                            self.isPressed = false;
+                            //self.isPressed = false;
                             if (to) {
                                 window.clearTimeout(to);
                                 to = null;
@@ -536,11 +533,12 @@ $(function () {
         };
 
         this.init = function () {
+            
             if (
-                null === this.value
-                || this.value < this.options.min
+                this.value < this.options.min
                 || this.value > this.options.max
             ) this.value = this.options.min;
+                
             this.target.val(this.value);
             this.w2 = this.options.width / 2;
             this.cursorExt = this.options.cursor / 100;
@@ -570,15 +568,15 @@ $(function () {
 
             this.options.displayInput
                 && this.input.css({
-                        'width' : (this.options.width / 2 + 4) + 'px'
-                        ,'height' : this.options.width / 3
+                        'width' : Math.floor(this.options.width / 2 + 4) + 'px'
+                        ,'height' : Math.floor(this.options.width / 3)
                         ,'position' : 'absolute'
                         ,'vertical-align' : 'middle'
-                        ,'margin-top' : this.options.width / 3 + 'px'
-                        ,'margin-left' : '-' + (this.options.width * 3 / 4 + 2) + 'px'
+                        ,'margin-top' : Math.floor(this.options.width / 3) + 'px'
+                        ,'margin-left' : '-' + Math.floor(this.options.width * 3 / 4 + 2) + 'px'
                         ,'border' : 0
                         ,'background' : 'none'
-                        ,'font' : 'bold ' + this.options.width / s + 'px Arial'
+                        ,'font' : 'bold ' + Math.floor(this.options.width / s) + 'px Arial'
                         ,'text-align' : 'center'
                         ,'color' : this.options.fgColor
                         ,'padding' : '0px'
