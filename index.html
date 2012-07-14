@@ -136,7 +136,7 @@
                 );
 
 
-                var $animBars = $(".bars1"), $dial = $(".dial"), timeout;
+                var $animBars = $(".bars1"), timeout;
                 $("#animate").bind(
                     'click',
                     function() {
@@ -153,11 +153,7 @@
                                     .val(Math.floor(Math.sin(v*i)*100))
                                     .trigger('change');
 
-                                /*$dial
-                                    .val(v)
-                                    .trigger('change');*/
-
-                                timeout = window.setTimeout(redraw, 16);
+                                timeout = window.setTimeout(redraw, 1000/60);
                             };
                             redraw();
                         } else {

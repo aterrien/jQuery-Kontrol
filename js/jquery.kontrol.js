@@ -67,6 +67,7 @@ $(function () {
         this.dy = 0;
         this.options = null;
         this.canvas = null;
+        this._context = null;
         this.context = null;
         this.fgColor = null;
         this.previousColor = null;
@@ -85,7 +86,7 @@ $(function () {
                 }
                 self.init();
                 self._configure()
-                    .draw();
+                    ._draw();
             };
 
             if(this.target.data('kontroled')) return;
@@ -108,7 +109,7 @@ $(function () {
                     width : this.target.data('width') || 200,
                     height : this.target.data('height') || 200,
                     displayInput : this.target.data('displayinput') == null || this.target.data('displayinput'),
-                    displayInputdisplayPrevious : this.target.data('displayprevious'),
+                    displayPrevious : this.target.data('displayprevious'),
                     fgColor : this.target.data('fgcolor') || '#87CEEB',
                     inline : false,
 
@@ -159,7 +160,7 @@ $(function () {
             (!o.displayInput) && this.target.hide();
 
             this.canvas = $('<canvas width="' + o.width + 'px" height="' + o.height + 'px"></canvas>');
-            this.context = this.canvas[0].getContext("2d");
+            this._context = this.canvas[0].getContext("2d");
             
             this.target
                 .wrap($('<div style="' + (o.inline ? 'display:inline;' : '') + 'width:' + o.width + 'px;height:' + o.height + 'px;"></div>'))
@@ -189,24 +190,27 @@ $(function () {
             return this;
         };
 
-        /*this._frame = function () {
-            var redraw = function () {
-                if (self.isPressed) {
-                    self._draw();
-                    window.requestAnimFrame(redraw);
-                }
-            };
-            self.isPressed = true;
-            window.requestAnimFrame(redraw);
-        };*/
-
         this._draw = function () {
-            if (
-                this.drawHook
-                && (this.drawHook() === false)
-            ) return;
 
-            this.draw();
+            // canvas pre-rendering
+            var d = true, c = document.createElement('canvas');
+            c.width = self.options.width;
+            c.height = self.options.height;
+            self.context = c.getContext('2d');
+
+            self.clear();
+
+            self.drawHook
+            && (d = self.drawHook());
+            
+            (d !== false) && self.draw();
+
+            self._context.drawImage(c, 0, 0);
+            c = null;
+
+            /*if (self.isPressed) {
+                window.requestAnimFrame(self._draw);
+            }*/
         };
 
         this._touchStart = function (e) {
@@ -228,6 +232,8 @@ $(function () {
 
             // First touch
             touchMove(e);
+            //this.isPressed = true;
+            //window.requestAnimFrame(this._draw);
 
             // Touch events listeners
             kontrol.Core.document
@@ -267,7 +273,9 @@ $(function () {
 
             // First click
             mouseMove(e);
-
+            //this.isPressed = true;
+            //window.requestAnimFrame(this._draw);
+            
             // Mouse events listeners
             kontrol.Core.document
                 .bind("mousemove.k", mouseMove)
@@ -364,8 +372,8 @@ $(function () {
             return this;
         };
 
-        this.clear = function () {
-            this.context.clearRect(0, 0, this.options.width, this.options.height);
+        this._clear = function () {
+            this.canvas[0].width = this.canvas[0].width;
         };
 
         // Abstract methods
@@ -376,6 +384,7 @@ $(function () {
         this.val = function (v) {}; // on release
         this.xy2val = function (x, y) {}; //
         this.draw = function () {}; // on change / on release
+        this.clear = function () { this._clear(); };
 
         // Utils
         this.getColorRGBA = function (hexstr, opacity) {
@@ -401,6 +410,7 @@ $(function () {
         this.startAngle = null;
         this.xy = null;
         this.radius = null;
+        this.lineWidth = null;
         this.cursorExt = null;
         this.w2 = null;
         this.PI2 = 2*Math.PI;
@@ -495,13 +505,12 @@ $(function () {
                                 self.options.stopper
                                 && (v = Math.max(Math.min(v, self.options.max), self.options.min));
 
-                                self._draw();
-                                //self._frame();
                                 self.change(v);
+                                self._draw();
 
                                 // long time keydown speed-up
                                 to = window.setTimeout(
-                                    function () { m < 20 && m++; }
+                                    function () { m*=2; }
                                     ,30
                                 );
                             }
@@ -543,8 +552,8 @@ $(function () {
             this.w2 = this.options.width / 2;
             this.cursorExt = this.options.cursor / 100;
             this.xy = this.w2;
-            this.context.lineWidth = this.xy * this.options.thickness;
-            this.radius = this.xy - this.context.lineWidth / 2;
+            this.lineWidth = this.xy * this.options.thickness;
+            this.radius = this.xy - this.lineWidth / 2;
 
             this.options.angleOffset
             && (this.options.angleOffset = isNaN(this.options.angleOffset) ? 0 : this.options.angleOffset);
@@ -568,15 +577,15 @@ $(function () {
 
             this.options.displayInput
                 && this.input.css({
-                        'width' : Math.floor(this.options.width / 2 + 4) + 'px'
-                        ,'height' : Math.floor(this.options.width / 3)
+                        'width' : ((this.options.width / 2 + 4) >> 0) + 'px'
+                        ,'height' : ((this.options.width / 3) >> 0) + 'px'
                         ,'position' : 'absolute'
                         ,'vertical-align' : 'middle'
-                        ,'margin-top' : Math.floor(this.options.width / 3) + 'px'
-                        ,'margin-left' : '-' + Math.floor(this.options.width * 3 / 4 + 2) + 'px'
+                        ,'margin-top' : ((this.options.width / 3) >> 0) + 'px'
+                        ,'margin-left' : '-' + ((this.options.width * 3 / 4 + 2) >> 0) + 'px'
                         ,'border' : 0
                         ,'background' : 'none'
-                        ,'font' : 'bold ' + Math.floor(this.options.width / s) + 'px Arial'
+                        ,'font' : 'bold ' + ((this.options.width / s) >> 0) + 'px Arial'
                         ,'text-align' : 'center'
                         ,'color' : this.options.fgColor
                         ,'padding' : '0px'
@@ -605,15 +614,15 @@ $(function () {
                 , sa, ea                        // Previous angles
                 , r = true;
 
-            this.clear();
+            this.context.lineWidth = this.lineWidth;
 
             this.options.cursor
                 && (sat = eat - this.cursorExt)
                 && (eat = eat + this.cursorExt);
 
             this.context.beginPath();
-            this.context.strokeStyle = this.options.bgColor;
-            this.context.arc(this.xy, this.xy, this.radius, this.endAngle, this.startAngle, true);
+                this.context.strokeStyle = this.options.bgColor;
+                this.context.arc(this.xy, this.xy, this.radius, this.endAngle, this.startAngle, true);
             this.context.stroke();
 
             if (this.options.displayPrevious) {
@@ -624,15 +633,15 @@ $(function () {
                     && (ea = ea + this.cursorExt);
 
                 this.context.beginPath();
-                this.context.strokeStyle = this.previousColor;
-                this.context.arc(this.xy, this.xy, this.radius, sa, ea, false);
+                    this.context.strokeStyle = this.previousColor;
+                    this.context.arc(this.xy, this.xy, this.radius, sa, ea, false);
                 this.context.stroke();
                 r = (this.newValue == this.value);
             }
 
             this.context.beginPath();
-            this.context.strokeStyle = r ? this.options.fgColor : this.fgColor ;
-            this.context.arc(this.xy, this.xy, this.radius, sat, eat, false);
+                this.context.strokeStyle = r ? this.options.fgColor : this.fgColor ;
+                this.context.arc(this.xy, this.xy, this.radius, sat, eat, false);
             this.context.stroke();
         };
 
@@ -759,8 +768,6 @@ $(function () {
             var c = this.context
                 , r = true;
 
-            this.clear();
-
             if (this.options.displayPrevious) {
                 c.beginPath();
                 c.lineWidth = this.cursor;
@@ -824,7 +831,7 @@ $(function () {
 
             // initialize colWith
             (this.options.cols == 1) && (this.options.spacing = 0);
-            this.colWidth = Math.floor((this.options.width - this.options.spacing * this.options.cols) / this.options.cols);
+            this.colWidth = (((this.options.width - this.options.spacing * this.options.cols) / this.options.cols) >> 0);
 
             if(this.options.displayInput) {
                 this.fontSize = Math.max(Math.round(this.colWidth/3), 10);
@@ -834,13 +841,13 @@ $(function () {
 
         this.xy2val = function (x, y) {
             var cw = this.colWidth + this.options.spacing
-                ,val = Math.floor(
-                            Math.max(this.options.min
-                            , Math.min(this.options.max, - ( - this.mid + (y - this.y)) / this.bar))
-                            )
+                ,val = (
+                        Math.max(this.options.min
+                        , Math.min(this.options.max, - ( - this.mid + (y - this.y)) / this.bar))
+                       ) >> 0
                 ,ret = {};
 
-            this.col = Math.max(0, Math.min(this.options.cols-1, Math.floor((x - this.x) / cw)));
+            this.col = Math.max(0, Math.min(this.options.cols-1, ((x - this.x) / cw) >> 0));
             ret[this.col] = val;
             return ret;
         };
@@ -848,7 +855,7 @@ $(function () {
         this.init = function () {
 
             this.bar = this.options.height / (this.options.max - this.options.min);
-            this.mid = Math.floor(this.options.max * this.bar);
+            this.mid = (this.options.max * this.bar) >> 0;
             this.displayMidLine = this.options.cursor && this.options.min < 0;
 
             if(this.options.displayInput) {
@@ -927,11 +934,11 @@ $(function () {
                 this.context.lineWidth = this.colWidth;
                 this.context.strokeStyle = (this.newValue[col] == this.value[col]) ? this.options.fgColor : this.previousColor;
                 if (this.options.cursor) {
-                    this.context.lineTo(x, this.mid - Math.floor(this.value[col] * this.bar) + this.options.cursor / 2);
+                    this.context.lineTo(x, this.mid - ((this.value[col] * this.bar) >> 0) + this.options.cursor / 2);
                 } else {
                     this.context.moveTo(x, this.mid);
                 }
-                this.context.lineTo(x, this.mid - Math.floor(this.value[col] * this.bar) - this.options.cursor / 2);
+                this.context.lineTo(x, this.mid - ((this.value[col] * this.bar) >> 0) - this.options.cursor / 2);
                 this.context.stroke();
             }
 
@@ -939,27 +946,32 @@ $(function () {
             this.context.lineWidth = this.colWidth;
             this.context.strokeStyle = this.fgColor;
             if (this.options.cursor) {
-                this.context.lineTo(x, this.mid - Math.floor(this.newValue[col] * this.bar) + this.options.cursor / 2);
+                this.context.lineTo(x, this.mid - ((this.newValue[col] * this.bar) >> 0) + this.options.cursor / 2);
             } else {
                 this.context.moveTo(x, this.mid);
             }
-            this.context.lineTo(x, this.mid - Math.floor(this.newValue[col] * this.bar) - this.options.cursor / 2);
+            this.context.lineTo(x, this.mid - ((this.newValue[col] * this.bar) >> 0) - this.options.cursor / 2);
             this.context.stroke();
         };
 
-        this.draw = function () {
+        this.clear = function () {
             if (this.col) {
                 // current col
-                this.context.clearRect(
+                this._context.clearRect(
                     this.col * (this.colWidth + this.options.spacing)
                     , 0
                     , this.colWidth + this.options.spacing
                     , this.options.height
                 );
+            } else {
+                this._clear();
+            }
+        }
+
+        this.draw = function () {
+            if (this.col) {
                 this._drawBar(this.col);
             } else {
-                // redraw all
-                this.clear();
                 for (var i = 0; i < this.options.cols; i++) {
                     this._drawBar(i);
                 }
