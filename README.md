@@ -110,22 +110,33 @@ Make your own component
 
 $(function () {
 
-    // Component logic
-    kontrol.NewComponent = function () {
-        kontrol.Object.call(this);
+    /**
+     *
+     * Kontrol core
+     *
+     */
 
-        this.draw = function () {
-            // console.log(this);
-        };
+
+    // Component logic
+    k.NewComponent = function () {
+
+        // extends Kontrol Object
+        k.o.call(this);
+
+        /**
+         *
+         * your code
+         *
+         */
     };
 
     // jQuery plugin
-    $.fn.newcomponent = function (opt) {
+    $.fn.newcomponent = function (o) {
         return this.each(
             function () {
-                var k = new kontrol.NewComponent(opt);
-                k.options = opt;
-                k.target = $(this);
+                var k = new k.NewComponent();
+                k.o = o;
+                k.$ = $(this);
                 k.run();
             }
         ).parent();

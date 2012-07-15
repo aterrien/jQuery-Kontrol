@@ -15,6 +15,9 @@
                                     /*, change : function (value) {
                                         console.log("change : ", value);
                                     }*/
+                                    /*, draw : function () {
+                                        console.log(this.o);
+                                    }*/
                                 });
 
                 /*$(".bars2").bars({
@@ -150,7 +153,7 @@
 
                                 $animBars
                                     .find('input:eq('+v+')')
-                                    .val(Math.floor(Math.sin(v*i)*100))
+                                    .val(Math.floor(Math.sin(i+v*i)*100))
                                     .trigger('change');
 
                                 timeout = window.setTimeout(redraw, 1000/60);
@@ -238,8 +241,8 @@
                 <div style="margin-bottom:10px">XY</div>
                 <fieldset class="pad" data-width="180" data-height="180">
                     <legend>XY Pad</legend>
-                    x : <input name="x" value=50>
-                    y : <input name="y" value=67>
+                    x : <input name="x" value=27>
+                    y : <input name="y" value=80>
                 </fieldset>
             </div>
             <div style="float:left;width:200px;padding:30px">
