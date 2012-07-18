@@ -81,6 +81,8 @@ Hooks
 
 * 'cancel' : on [esc] keydown
 
+* 'start' : executed on mousedown or touchStart
+
 The scope (this) of each hook function is an instance of Kontrol component.
 
 
