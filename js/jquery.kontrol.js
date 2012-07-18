@@ -60,6 +60,7 @@ $(function () {
         this.isInit = false;
         this.fgColor = null; // main color
         this.pColor = null; // previous color
+        this.sH = null; // start hook
         this.dH = null; // draw hook
         this.cH = null; // change hook
         this.eH = null; // cancel hook
@@ -101,6 +102,7 @@ $(function () {
                     inline : false,
 
                     // Hooks
+                    start:null,  // function () {}
                     draw : null, // function () {}
                     change : null, // function (value) {}
                     cancel : null, // function () {}
@@ -226,6 +228,11 @@ $(function () {
             // get touches index
             this.t = k.c.t(e);
 
+            if (
+                this.sH
+                && (this.sH() === false)
+            ) return;
+            
             // First touch
             touchMove(e);
 
@@ -263,7 +270,12 @@ $(function () {
                 s.change(v);
                 s._draw();
             };
-
+            
+            if (
+                this.sH
+                && (this.sH() === false)
+            ) return;
+            
             // First click
             mouseMove(e);
             
@@ -339,6 +351,7 @@ $(function () {
         this._configure = function () {
 
             // Hooks
+            if (this.o.start) this.sH = this.o.start;
             if (this.o.draw) this.dH = this.o.draw;
             if (this.o.change) this.cH = this.o.change;
             if (this.o.cancel) this.eH = this.o.cancel;
