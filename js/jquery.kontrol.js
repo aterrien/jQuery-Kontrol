@@ -100,6 +100,7 @@ $(function () {
                     displayPrevious : this.$.data('displayprevious'),
                     fgColor : this.$.data('fgcolor') || '#87CEEB',
                     inline : false,
+                    //context : {'lineCap' : 'butt'},
 
                     // Hooks
                     start:null,  // function () {}
@@ -611,6 +612,10 @@ $(function () {
                 , r = 1;
 
             c.lineWidth = this.lineWidth;
+
+            /*for(o in this.o.context) {
+                c[o] = this.o.context[o];
+            }*/
 
             this.o.cursor
                 && (sat = eat - this.cursorExt)
