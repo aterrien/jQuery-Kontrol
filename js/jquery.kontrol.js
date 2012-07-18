@@ -669,10 +669,10 @@ $(function () {
     k.XY = function () {
         k.o.call(this);
 
-        this.mx = 0;
-        this.my = 0;
-        this.px = 0;
-        this.py = 0;
+        this.m = [];
+        this.p = [];
+        this.f = []; // factor
+        this.s = {0:1,1:-1};
         this.cur2 = 0;
         this.cursor = 0;
         this.v = {};
@@ -689,15 +689,21 @@ $(function () {
             );
         };
 
+        this._coord = function() {
+            for(i in this.v) {
+                this.m[i] = ~~ (0.5 + ((this.s[i] * this.v[i] - this.o.min) / this.f[i]) + this.cur2) ;
+            }
+        };
+
         this.init = function () {
             this.cursor = this.o.cursor || 30;
             this.cur2 = this.cursor / 2;
-            this.xunit = (this.o.max - this.o.min) / (this.o.width - this.cursor);
-            this.yunit = (this.o.max - this.o.min) / (this.o.height - this.cursor);
+            
+            this.f[0] = (this.o.max - this.o.min) / (this.o.width - this.cursor);
+            this.f[1] = (this.o.max - this.o.min) / (this.o.height - this.cursor);
 
             if (!this.isInit) {
-                this.mx = this.px = ~~ (0.5 + this.cur2 + (this.v[0] - this.o.min) / this.xunit) >> 0;
-                this.my = this.py = ~~ (0.5 + this.o.height - (this.cur2 + (this.v[1] - this.o.min) / this.yunit));
+                this._coord();
             }
 
             if(this.o.displayInput) {
@@ -728,12 +734,12 @@ $(function () {
         };
 
         this.xy2val = function (x, y) {
-            this.mx = max(this.cur2, min(x - this.x, this.o.width - this.cur2));
-            this.my = max(this.cur2, min(y - this.y, this.o.height - this.cur2));
-            return [
-                    ~~ (this.o.min + (this.mx - this.cur2) * this.xunit),
-                    ~~ (this.o.min + (this.o.height - this.my - this.cur2) * this.yunit)
-                    ];
+            this.m[0] = max(this.cur2, min(x - this.x, this.o.width - this.cur2));
+            this.m[1] = max(this.cur2, min(y - this.y, this.o.height - this.cur2));
+            return {
+                0 : ~~ (this.o.min + (this.m[0] - this.cur2) * this.f[0]),
+                1 : ~~ (this.o.min + (this.o.height - this.m[1] - this.cur2) * this.f[1])
+            };
         };
 
         this.change = function (v) {
@@ -746,8 +752,7 @@ $(function () {
             if (null !== v) {
                 this.cv = v;
                 this.copy(this.cv, this.v);
-                this.px = this.mx;
-                this.py = this.my;
+                this._coord();
                 this._draw();
             } else {
                 return this.v;
@@ -758,8 +763,8 @@ $(function () {
             this.copy(this.v, this.cv);
             this.i[0].val(this.cv[0]);
             this.i[1].val(this.cv[1]);
-            this.mx = this.px;
-            this.my = this.py;
+            this.m[0] = this.p[0];
+            this.m[1] = this.p[1];
             this._draw();
         };
 
@@ -772,8 +777,8 @@ $(function () {
                 c.beginPath();
                 c.lineWidth = this.cursor;
                 c.strokeStyle = this.pColor;
-                c.moveTo(this.px, this.py + this.cur2);
-                c.lineTo(this.px, this.py - this.cur2);
+                c.moveTo(this.p[0], this.p[1] + this.cur2);
+                c.lineTo(this.p[0], this.p[1] - this.cur2);
                 c.stroke();
                 r = (this.cv[0] == this.v[0] && this.cv[1] == this.v[1]);
             }
@@ -781,8 +786,8 @@ $(function () {
             c.beginPath();
             c.lineWidth = this.cursor;
             c.strokeStyle = r  ? this.o.fgColor : this.fgColor;
-            c.moveTo(this.mx, this.my + this.cur2);
-            c.lineTo(this.mx, this.my - this.cur2);
+            c.moveTo(this.m[0], this.m[1] + this.cur2);
+            c.lineTo(this.m[0], this.m[1] - this.cur2);
             c.stroke();
         };
     };
