@@ -107,6 +107,15 @@ Dynamically configure
     $('.dial').trigger('configure',{"fgColor":"#FF0000", "cursor":true})
     </script>
 
+Set the value
+-------
+
+    <script>
+    $('input')
+        .val(27)
+        .trigger('change');
+    </script>
+
 Make your own component
 -------
 
