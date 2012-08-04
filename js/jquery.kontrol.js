@@ -90,6 +90,7 @@ $(function () {
                     max : this.$.data('max') || 100,
                     stopper : true,
                     readOnly : this.$.data('readonly'),
+                    noScroll : this.$.data('noScroll'),
 
                     // UI
                     cursor : (this.$.data('cursor') === true && 30)
@@ -474,6 +475,9 @@ $(function () {
             // bind MouseWheel
             var s = this,
                 mw = function (e) {
+                            if(s.o.noScroll) 
+                                return;
+
                             e.preventDefault();
                             
                             var ori = e.originalEvent
