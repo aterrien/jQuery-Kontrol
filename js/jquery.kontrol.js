@@ -803,7 +803,6 @@ $(function () {
 
             c.beginPath();
             c.lineWidth = this.cursor;
-            console.log(this.m);
             c.strokeStyle = r  ? this.o.fgColor : this.fgColor;
             c.moveTo(this.m[0], this.m[1] + this.cur2);
             c.lineTo(this.m[0], this.m[1] - this.cur2);
