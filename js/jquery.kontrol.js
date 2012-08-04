@@ -708,6 +708,7 @@ $(function () {
         this._coord = function() {
             for(var i in this.v) {
                 this.m[i] = ~~ (0.5 + ((this.s[i] * this.v[i] - this.o.min) / this.f[i]) + this.cur2) ;
+                this.p[i] = this.m[i];
             }
         };
 
@@ -752,6 +753,7 @@ $(function () {
         this.xy2val = function (x, y) {
             this.m[0] = max(this.cur2, min(x - this.x, this.o.width - this.cur2));
             this.m[1] = max(this.cur2, min(y - this.y, this.o.height - this.cur2));
+
             return {
                 0 : ~~ (this.o.min + (this.m[0] - this.cur2) * this.f[0]),
                 1 : ~~ (this.o.min + (this.o.height - this.m[1] - this.cur2) * this.f[1])
@@ -801,6 +803,7 @@ $(function () {
 
             c.beginPath();
             c.lineWidth = this.cursor;
+            console.log(this.m);
             c.strokeStyle = r  ? this.o.fgColor : this.fgColor;
             c.moveTo(this.m[0], this.m[1] + this.cur2);
             c.lineTo(this.m[0], this.m[1] - this.cur2);
