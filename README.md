@@ -49,6 +49,7 @@ Behaviors :
 * stopper : stop at 0 & 100 on keydown/mousewheel || default=true.
 * readOnly : disable input and events.
 * flatMouse : the dial responds to up-down mouse movement instead of radial mouse movement.
+* noScroll : disable the mouse wheel for the dial.
 
 UI :
 * cursor : display mode "cursor" | default=gauge.
