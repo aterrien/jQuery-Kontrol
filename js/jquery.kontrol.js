@@ -54,6 +54,8 @@ $(function () {
         this.cv = null; // change value ; not commited value
         this.x = 0; // canvas x position
         this.y = 0; // canvas y position
+        this.mx = 0; // x value of mouse down point of the current mouse move
+        this.my = 0; // y value of mouse down point of the current mose move
         this.$c = null; // jQuery canvas element
         this.c = null; // rendered canvas context
         this.t = 0; // touches index
@@ -88,6 +90,7 @@ $(function () {
                     max : this.$.data('max') || 100,
                     stopper : true,
                     readOnly : this.$.data('readonly'),
+                    noScroll : this.$.data('noScroll'),
 
                     // UI
                     cursor : (this.$.data('cursor') === true && 30)
@@ -211,7 +214,8 @@ $(function () {
                 
                 var v = s.xy2val(
                             e.originalEvent.touches[s.t].pageX,
-                            e.originalEvent.touches[s.t].pageY
+                            e.originalEvent.touches[s.t].pageY,
+                            'touch'
                             );
 
                 if (v == s.cv) return;
@@ -260,7 +264,7 @@ $(function () {
         this._mouse = function (e) {
 
             var mouseMove = function (e) {
-                var v = s.xy2val(e.pageX, e.pageY);
+                var v = s.xy2val(e.pageX, e.pageY, 'mouse');
                 if (v == s.cv) return;
 
                 if (
@@ -278,8 +282,10 @@ $(function () {
             ) return;
             
             // First click
+            s.mx = e.pageX;
+            s.my = e.pageY;
             mouseMove(e);
-            
+
             // Mouse events listeners
             k.c.d
                 .bind("mousemove.k", mouseMove)
@@ -378,7 +384,7 @@ $(function () {
         this.init = function () {}; // each time configure triggered
         this.change = function (v) {}; // on change
         this.val = function (v) {}; // on release
-        this.xy2val = function (x, y) {}; //
+        this.xy2val = function (x, y, method) {}; //
         this.draw = function () {}; // on change / on release
         this.clear = function () { this._clear(); };
 
@@ -418,6 +424,7 @@ $(function () {
                     bgColor : this.$.data('bgcolor') || '#EEEEEE',
                     angleOffset : this.$.data('angleoffset') || 0,
                     angleArc : this.$.data('anglearc') || 360,
+                    flatMouse : this.$.data('flatMouse'),
                     inline : true
                 }, this.o
             );
@@ -434,23 +441,29 @@ $(function () {
             }
         };
 
-        this.xy2val = function (x, y) {
+        this.xy2val = function (x, y, m) {
             var a, ret;
 
-            a = Math.atan2(
-                        x - (this.x + this.w2)
-                        , - (y - this.y - this.w2)
-                    ) - this.angleOffset;
+            if ((m === 'mouse') && (this.o.flatMouse)) {
+                a = ((this.my - y) + (x - this.mx)) / (this.o.height);
+                ret = ~~ (a * (this.o.max - this.o.min) + parseFloat(this.v));
+                ret = max(min(ret, this.o.max), this.o.min);
+            } else {
+                a = Math.atan2(
+                    x - (this.x + this.w2)
+                    , - (y - this.y - this.w2)
+                ) - this.angleOffset;
 
-            if(this.angleArc != this.PI2 && (a < 0) && (a > -0.5)) {
-                // if isset angleArc option, set to min if .5 under min
-                a = 0;
-            } else if (a < 0) {
-                a += this.PI2;
-            }
+                if(this.angleArc != this.PI2 && (a < 0) && (a > -0.5)) {
+                    // if isset angleArc option, set to min if .5 under min
+                    a = 0;
+                } else if (a < 0) {
+                    a += this.PI2;
+                }
 
-            ret = ~~ (0.5 + (a * (this.o.max - this.o.min) / this.angleArc))
+                ret = ~~ (0.5 + (a * (this.o.max - this.o.min) / this.angleArc))
                     + this.o.min;
+            }
 
             this.o.stopper
             && (ret = max(min(ret, this.o.max), this.o.min));
@@ -462,6 +475,9 @@ $(function () {
             // bind MouseWheel
             var s = this,
                 mw = function (e) {
+                            if(s.o.noScroll) 
+                                return;
+
                             e.preventDefault();
                             
                             var ori = e.originalEvent
@@ -692,6 +708,7 @@ $(function () {
         this._coord = function() {
             for(var i in this.v) {
                 this.m[i] = ~~ (0.5 + ((this.s[i] * this.v[i] - this.o.min) / this.f[i]) + this.cur2) ;
+                this.p[i] = this.m[i];
             }
         };
 
@@ -736,6 +753,7 @@ $(function () {
         this.xy2val = function (x, y) {
             this.m[0] = max(this.cur2, min(x - this.x, this.o.width - this.cur2));
             this.m[1] = max(this.cur2, min(y - this.y, this.o.height - this.cur2));
+
             return {
                 0 : ~~ (this.o.min + (this.m[0] - this.cur2) * this.f[0]),
                 1 : ~~ (this.o.min + (this.o.height - this.m[1] - this.cur2) * this.f[1])
