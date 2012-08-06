@@ -26,7 +26,7 @@ $(function () {
     var k = {}, // kontrol
         max = Math.max,
         min = Math.min;
-        
+
     k.c = {};
     k.c.d = $(document);
     k.c.t = function (e) {
@@ -156,7 +156,7 @@ $(function () {
                             this.o.width + 'px" height="' +
                             this.o.height + 'px"></canvas>');
             this.c = this.$c[0].getContext("2d");
-            
+
             this.$
                 .wrap($('<div style="' + (this.o.inline ? 'display:inline;' : '') +
                         'width:' + this.o.width + 'px;height:' +
@@ -190,9 +190,9 @@ $(function () {
         this._draw = function () {
 
             // canvas pre-rendering
-            var d = true, 
+            var d = true,
                 c = document.createElement('canvas');
-                
+
             c.width = s.o.width;
             c.height = s.o.height;
             s.g = c.getContext('2d');
@@ -201,7 +201,7 @@ $(function () {
 
             s.dH
             && (d = s.dH());
-            
+
             (d !== false) && s.draw();
 
             s.c.drawImage(c, 0, 0);
@@ -211,7 +211,7 @@ $(function () {
         this._touch = function (e) {
 
             var touchMove = function (e) {
-                
+
                 var v = s.xy2val(
                             e.originalEvent.touches[s.t].pageX,
                             e.originalEvent.touches[s.t].pageY,
@@ -237,7 +237,7 @@ $(function () {
                 this.sH
                 && (this.sH() === false)
             ) return;
-            
+
             // First touch
             touchMove(e);
 
@@ -275,12 +275,12 @@ $(function () {
                 s.change(v);
                 s._draw();
             };
-            
+
             if (
                 this.sH
                 && (this.sH() === false)
             ) return;
-            
+
             // First click
             s.mx = e.pageX;
             s.my = e.pageY;
@@ -475,16 +475,16 @@ $(function () {
             // bind MouseWheel
             var s = this,
                 mw = function (e) {
-                            if(s.o.noScroll) 
+                            if(s.o.noScroll)
                                 return;
 
                             e.preventDefault();
-                            
+
                             var ori = e.originalEvent
                                 ,deltaX = ori.detail || ori.wheelDeltaX
                                 ,deltaY = ori.detail || ori.wheelDeltaY
                                 ,v = parseInt(s.$.val()) + (deltaX>0 || deltaY>0 ? 1 : deltaX<0 || deltaY<0 ? -1 : 0);
-                            
+
                             if (
                                 s.cH
                                 && (s.cH(v) === false)
@@ -498,7 +498,14 @@ $(function () {
                 .bind(
                     "keydown"
                     ,function (e) {
+
                         var kc = e.keyCode;
+
+                        // numpad support
+                        if(kc >= 96 && kc <= 105) {
+                            kc = e.keyCode = kc - 48;
+                        }
+
                         kval = parseInt(String.fromCharCode(kc));
 
                         if (isNaN(kval)) {
@@ -512,7 +519,7 @@ $(function () {
                             // arrows
                             if ($.inArray(kc,[37,38,39,40]) > -1) {
                                 e.preventDefault();
-                                
+
                                 var v = parseInt(s.$.val()) + kv[kc] * m;
 
                                 s.o.stopper
@@ -554,12 +561,12 @@ $(function () {
         };
 
         this.init = function () {
-            
+
             if (
                 this.v < this.o.min
                 || this.v > this.o.max
             ) this.v = this.o.min;
-                
+
             this.$.val(this.v);
             this.w2 = this.o.width / 2;
             this.cursorExt = this.o.cursor / 100;
@@ -715,7 +722,7 @@ $(function () {
         this.init = function () {
             this.cursor = this.o.cursor || 30;
             this.cur2 = this.cursor / 2;
-            
+
             this.f[0] = (this.o.max - this.o.min) / (this.o.width - this.cursor);
             this.f[1] = (this.o.max - this.o.min) / (this.o.height - this.cursor);
 
