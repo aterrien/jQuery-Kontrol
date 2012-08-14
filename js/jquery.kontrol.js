@@ -13,7 +13,7 @@
  *
  * Thanks to vor, eskimoblood, spiffistan, FabrizioC
  */
-$(function () {
+(function($) {
 
     /**
      * Kontrol library
@@ -1019,4 +1019,4 @@ $(function () {
             }
         ).parent();
     };
-});
+})(jQuery);
