@@ -56,6 +56,7 @@
         this.y = 0; // canvas y position
         this.mx = 0; // x value of mouse down point of the current mouse move
         this.my = 0; // y value of mouse down point of the current mose move
+        this.r = 1; // cached devicePixelRatio
         this.$c = null; // jQuery canvas element
         this.c = null; // rendered canvas context
         this.t = 0; // touches index
@@ -152,9 +153,12 @@
 
             (!this.o.displayInput) && this.$.hide();
 
+            this.r = window.devicePixelRatio || 1;
             this.$c = $('<canvas width="' +
-                            this.o.width + 'px" height="' +
-                            this.o.height + 'px"></canvas>');
+                            this.o.width*this.r + 'px" height="' +
+                            this.o.height*this.r + 'px" style="width:'+
+                            this.o.width + 'px;height:' + this.o.height +
+                        'px;"></canvas>');
             this.c = this.$c[0].getContext("2d");
 
             this.$
@@ -193,11 +197,12 @@
             var d = true,
                 c = document.createElement('canvas');
 
-            c.width = s.o.width;
-            c.height = s.o.height;
+            c.width = s.o.width*s.r;
+            c.height = s.o.height*s.r;
             s.g = c.getContext('2d');
-
+            
             s.clear();
+            s.g.scale(s.r, s.r);
 
             s.dH
             && (d = s.dH());
@@ -988,10 +993,10 @@
             if (this.col) {
                 // current col
                 this.c.clearRect(
-                    this.col * (this.colWidth + this.o.spacing)
+                    this.col * (this.colWidth + this.o.spacing) * this.r
                     , 0
-                    , this.colWidth + this.o.spacing
-                    , this.o.height
+                    , (this.colWidth + this.o.spacing) * this.r
+                    , this.o.height * this.r
                 );
             } else {
                 this._clear();
