@@ -13,7 +13,22 @@
  *
  * Thanks to vor, eskimoblood, spiffistan, FabrizioC
  */
-(function($) {
+
+(function(factory)
+{
+	if(typeof define == "function" && define.amd)
+	{
+		define(["jquery"],factory);
+	}
+	else if(typeof module !== "undefined" && module.exports)
+	{
+		module.exports = factory;
+	}
+	else
+	{
+		factory(window.jQuery || window.$);
+	}
+}(function($) {
 
     /**
      * Kontrol library
@@ -88,6 +103,7 @@
                     // Config
                     min : this.$.data('min') || 0,
                     max : this.$.data('max') || 100,
+                    centered : this.$.data('centered') || false,
                     stopper : true,
                     readOnly : this.$.data('readonly'),
                     noScroll : this.$.data('noScroll'),
@@ -622,7 +638,7 @@
         };
 
         this.angle = function (v) {
-            return (v - this.o.min) * this.angleArc / (this.o.max - this.o.min);
+            return this.o.centered ? v * this.angleArc / (this.o.max - this.o.min) : (v - this.o.min) * this.angleArc / (this.o.max - this.o.min);
         };
 
         this.draw = function () {
@@ -665,7 +681,7 @@
 
             c.beginPath();
                 c.strokeStyle = r ? this.o.fgColor : this.fgColor ;
-                c.arc(this.xy, this.xy, this.radius, sat, eat, false);
+                c.arc(this.xy, this.xy, this.radius, sat, eat, this.o.centered && this.cv < 0 ? true : false);
             c.stroke();
         };
 
@@ -1019,4 +1035,4 @@
             }
         ).parent();
     };
-})(jQuery);
+}))
